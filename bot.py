@@ -1,12 +1,18 @@
-#Criar repositorio no GitHub
-#Separar tudo em funções
-#Implementar abrir solicitações/solicitações de dietas
-#Para buscar nome do paciente: Tecla F2 para abrir; Ultima letra; Final com " A", " B", etc; Clique relativo > Descrição > Primeira linha
-#Para o produto: Criar um de para com a outra tabela referencia 
-#Para a Via Adm: Criar um de para com a outra tabela referencia 
-#Para Quantitativo de embalagens: Criar um de para com a outra tabela referencia + Condições de Volume/Recipiente
+#Criar repositorio no GitHub FEITO
+#Separar tudo em funções FEITO
+#Implementar abrir solicitações/solicitações de dietas FEITO
+#Incluir primeiro pedido dentro do for quando o index == 0 FEITO
+#Para buscar nome do paciente: Tecla F2 para abrir; FEITO
+#Para o produto: Criar um de para com a outra tabela referencia FEITO
+#Para a Via Adm: Criar um de para com a outra tabela referencia FEITO
+#Para Quantitativo de embalagens: Criar um de para com a outra tabela referencia + Condições de Volume/Recipiente FEITO
 #Baixar o plugin BotCity no vscode
-#Incluir primeiro pedido dentro do for quando o index == 0
+#Ultima letra; Final com " A", " B", etc; Clique relativo > Descrição > Primeira linha DIFICULDADE
+
+# ETAPA 3
+# Trocar inicio da automatização para clics com o MOUSE 
+# 1 - Cod cliente > enter > enter > funcao codigo paciente ate clicar no nome >  enter pop up > (AS VEZES DA ERRO DEPOIS DO PRIMEIRO POP UP)/(AS VEZES VAI PARA O OK POR NADA) > hora pedido > horario de entrega > unidade... > mouse no CRM
+# 2 - funcao codigo paciente ate clicar no nome > (foi para registro hospitalar)/(Precisa percorrer todos os campos antes de unidade) > Unidade... > CRM
 
 # Import for the Desktop Bot
 from botcity.core import DesktopBot
@@ -20,196 +26,169 @@ import pandas as pd
 # Importando biblioteca Openpyxl
 from openpyxl import Workbook, load_workbook
 
-#Importando arquivo horas.py
-from horas import executar_acoes
 
-from time import sleep
+import keyboard
 
-#Importando datetime
-from datetime import datetime
+from inserir import verificando_solicitacao, inserir_codigo_cliente, inserir_codigo_paciente, inserir_hora, inserir_unidade_de_interacao, inserir_unidade_de_interacao2, inserir_crm_padrao, inserir_produto, inserir_via_adm, inserir_recipiente, inserir_volume, inserir_horarios,  inserir_quantitativo_embalagens
 
 # Disable errors if we are not connected to Maestro
 BotMaestroSDK.RAISE_NOT_CONNECTED = False
 
+
 def main():
+
+    espera = int(input('Tempo de espera: '))
 
     bot = DesktopBot()
 
+
+    verificando_solicitacao(bot, not_found)
+    
     # 1 Leitura do arquivo Excel + variavel Num do Cliente
-    planilha = load_workbook ('P:\LA VITA\TI\BotCity\Planilha de Dados HOMOLOGAÇÃO 01.xlsx')
-
+    planilha = load_workbook ('P:\LA VITA\TI\BotCity\Planilha de Dados HOMOLOGAÇÃO 01 - V4.xlsx')
     aba_ativa = planilha.active
-
     num_cliente = str(aba_ativa["C1"].value) 
 
 
     # 2 Leitura do arquivo Excel
-    caminho_do_arquivo = 'P:\LA VITA\TI\BotCity\Planilha de Dados HOMOLOGAÇÃO 01.xlsx'
+    caminho_do_arquivo = 'P:\LA VITA\TI\BotCity\Planilha de Dados HOMOLOGAÇÃO 02.xlsx'
     dados_df = pd.read_excel(caminho_do_arquivo, skiprows=2)
 
+    #Criando a produtos_df
+    caminho_do_arquivo_produto = 'P:\LA VITA\TI\BotCity\Planilha de Configuração HOMOLOGAÇÃO 02.xlsx'
+    produtos_df = pd.read_excel(caminho_do_arquivo_produto, sheet_name='Produto')
 
-    #Pegando hora atual e modificando
-    hora_atual = datetime.now()
-    hora_formatada = hora_atual.strftime("%H%M")
+    #Criando a via_adm_df
+    caminho_do_arquivo_via_adm = 'P:\LA VITA\TI\BotCity\Planilha de Configuração HOMOLOGAÇÃO 02.xlsx'
+    via_adm_df = pd.read_excel(caminho_do_arquivo_via_adm, sheet_name='Via Adm')
 
-    if not bot.find( "Codigo Cliente", matching=0.97, waiting_time=10000):
-        not_found("Codigo Cliente")
-    bot.click_relative(23, 33)
 
-    # Codigo Cliente
-    bot.kb_type(num_cliente)
-    bot.enter()
-    bot.enter()
+    #Adicionando a coluna CodProduto Sistema
+    dados_produtos_df = pd.merge(dados_df, produtos_df, left_on='Produto', right_on='Produto Prescrição', how='left')
+    # Após o merge, você pode querer remover a coluna duplicada de 'Produto Prescrição' se não precisar dela
+    dados_produtos_df.drop(columns=['Produto Prescrição'], inplace=True)
 
-    # Codigo Paciente
-    bot.kb_type(str(dados_df.loc[0, 'Nome']))
-    bot.enter()
-    bot.enter()
+    #Adicionando a coluna Via Adm Prescrição
+    dados_completos_df = pd.merge(dados_df, via_adm_df, left_on='Via Adm', right_on='Via Adm Prescrição', how='left')
+    # Após o merge, você pode querer remover a coluna duplicada de 'Produto Prescrição' se não precisar dela
+    dados_completos_df.drop(columns=['Via Adm Prescrição'], inplace=True)
 
-    # Horario Sistema 
-    # IMPLEMENTAR FUNÇAO QUE BUSCA HORA DE AGORA
-    bot.kb_type(hora_formatada)
-    bot.enter()
-    bot.enter()
-    bot.enter()
-    sleep(0.1)
 
-    # Unidade de internação
-    bot.kb_type(dados_df.loc[0, 'Un. Internação'])
-    sleep(0.1)
-    bot.enter()
+    #Criando a quantitativo_embalagens_df
+    caminho_do_arquivo_quantitativo_embalagens = 'P:\LA VITA\TI\BotCity\Planilha de Configuração HOMOLOGAÇÃO 02.xlsx'
+    quantitativo_embalagens_df = pd.read_excel(caminho_do_arquivo_quantitativo_embalagens, sheet_name='Quantitativo Embalagens')
 
-    # Entrar com CRM padrão
-    bot.kb_type("9574")
-    bot.enter()
-    bot.enter()
 
-    # Produto 
-    bot.kb_type(str(dados_df.loc[0, 'Produto']))
-    bot.enter()
+    passo_a_passo = True
 
-    # Via ADM
-    bot.kb_type(dados_df.loc[0, 'Via Adm'])
-    bot.enter()
 
-    # Recipiente
-    bot.kb_type(dados_df.loc[0, 'Recipiente'])
-    bot.enter()
+    def encontrar_quantitativo(row):
+        recipiente = row['Recipiente']
+        volume = row['Volume']
 
-    # Volume 
-    bot.kb_type(str(dados_df.loc[0, 'Volume']))
-    bot.enter()
-    
-    # Escolha de Horários
-    bot.kb_type("0")
-    bot.enter()
-    bot.kb_type("0")
-    bot.enter()
-    if not bot.find( "0 Hora", matching=0.97, waiting_time=10000):
-        not_found("0 Hora")
-    bot.click_relative(7, 8)
+        # Filtra quantitativo_df pelo recipiente e verifica o intervalo de volume
+        filtro = quantitativo_embalagens_df[(quantitativo_embalagens_df['Recipiente'] == recipiente) & (quantitativo_embalagens_df['Volume inicial'] <= volume) & (quantitativo_embalagens_df['Volume final'] >= volume)]
 
-    #Separando e marcando os horários
-    hora = dados_df.loc[0, 'Horários']
-    hora_separada = hora.split('/')
-    hora_separada = [int(h) for h in hora_separada]
-    executar_acoes(bot, hora_separada)
+        if not filtro.empty:
+            return filtro.iloc[0]['Quantitativo Sistema']  # Retorna o primeiro correspondente
+        return None  # Retorna None se não houver correspondente
 
-     # Achando e Escrevendo Quantitativo de embalagens
-    if not bot.find( "Quantitativo de embalagens", matching=0.97, waiting_time=10000):
-         not_found("Quantitativo de embalagens")
-    bot.click_relative(12, 46)
+    # Aplica a função a cada linha de dados_df para encontrar o quantitativo sistema correspondente
+    dados_completos_df['Quantitativo Sistema'] = dados_completos_df.apply(encontrar_quantitativo, axis=1)
 
-    if not bot.find( "Escolha uma opcao", matching=0.97, waiting_time=10000):
-        not_found("Escolha uma opcao")
-    bot.click_relative(242, 7)
-    #Segundo CLick se mostrou necessário neste tipo de campo de informação
-    bot.click()
 
-    bot.kb_type(dados_df.loc[0, 'Quantidade de embalagens'])
-    bot.enter()
-    bot.enter()
-
-    #print(dados_df)
-    
     #Inicio do FOR para cadastrar do segundo paciente em diante
-    
-    for index, row in dados_df.iterrows():
+    for index, row in dados_completos_df.iterrows():
        # Ignora a primeira linha, para começar no segundo paciente
        if index == 0:
-           continue
+
+           inserir_codigo_cliente(bot, num_cliente, not_found, espera)
+           # Aguarda tecla para continuar, se solicitado
+           if passo_a_passo:
+                print("APERTA A TECLA KRAI 1")
+                keyboard.wait('ctrl')
+
+
+           inserir_codigo_paciente(bot, dados_completos_df, index, not_found, espera)
+           # Aguarda tecla para continuar, se solicitado
+           if passo_a_passo:
+                print("APERTA A TECLA KRAI 2")
+                keyboard.wait('ctrl')
+
+
+           #Proximo enter fecha o popup
+           bot.enter()
+           #bot.enter()
+            # Aguarda tecla para continuar, se solicitado
+           if passo_a_passo:
+                print("APERTA A TECLA KRAI 3")
+                keyboard.wait('ctrl')
+
+                #sleep(1)
+           inserir_hora(bot, espera)
+           #bot.enter()
+           # Aguarda tecla para continuar, se solicitado
+           if passo_a_passo:
+                print("APERTA A TECLA KRAI 4")
+                keyboard.wait('ctrl')
+
+           inserir_unidade_de_interacao(bot, dados_completos_df, index, espera)
+           # Aguarda tecla para continuar, se solicitado
+           if passo_a_passo:
+                print("APERTA A TECLA KRAI 5")
+                keyboard.wait('ctrl')
+
+           inserir_crm_padrao(bot, espera)
+           # Aguarda tecla para continuar, se solicitado
+           if passo_a_passo:
+                print("APERTA A TECLA KRAI 6")
+                keyboard.wait('ctrl')
+
+           inserir_produto(bot, dados_produtos_df, index, espera)
+           inserir_via_adm(bot, dados_completos_df, index)
+           inserir_recipiente(bot, dados_completos_df, index)
+           inserir_volume(bot, dados_completos_df, index)
+           inserir_horarios(bot, dados_completos_df, index, not_found)
+           inserir_quantitativo_embalagens(bot, dados_completos_df, index, not_found)
+
+       else:
+           # Aguarda tecla para continuar, se solicitado
+           if passo_a_passo:
+                print("APERTA A TECLA KRAI 1")
+                keyboard.wait('ctrl')
+
+           inserir_codigo_paciente(bot, dados_completos_df, index, not_found, espera)
+           # Aguarda tecla para continuar, se solicitado
+           if passo_a_passo:
+                print("APERTA A TECLA KRAI 2")
+                keyboard.wait('ctrl')
+
+                #bot.enter()
+           #sleep(1)
+           #inserir_hora(bot)
+           inserir_unidade_de_interacao2(bot, dados_completos_df, index, not_found, espera)
+           # Aguarda tecla para continuar, se solicitado
+           if passo_a_passo:
+                print("APERTA A TECLA KRAI 3")
+                keyboard.wait('ctrl')
+
+           inserir_crm_padrao(bot, espera)
+           # Aguarda tecla para continuar, se solicitado
+           if passo_a_passo:
+                print("APERTA A TECLA KRAI 4")
+                keyboard.wait('ctrl')
+
+           inserir_produto(bot, dados_produtos_df, index, espera)
+           inserir_via_adm(bot, dados_completos_df, index)
+           inserir_recipiente(bot, dados_completos_df, index)
+           inserir_volume(bot, dados_completos_df, index)
+           inserir_horarios(bot, dados_completos_df, index, not_found)
+           inserir_quantitativo_embalagens(bot, dados_completos_df, index, not_found)    
        
-       # Inicio do cadastro
-       # Codigo Paciente
-       bot.kb_type(str(dados_df.loc[index, 'Nome']))
-       bot.enter()
-       bot.enter()
-
-       # Horario Sistema 
-       # IMPLEMENTAR FUNÇAO QUE BUSCA HORA DE AGORA
-       bot.kb_type(hora_formatada)
-       bot.enter()
-       bot.enter()
-       bot.enter()
-
-       # Unidade de internação
-       bot.kb_type(dados_df.loc[index, 'Un. Internação'])
-       bot.enter()
-
-       # Entrar com CRM padrão
-       bot.kb_type("9574")
-       bot.enter()
-       bot.enter()
-
-       # Produto 
-       bot.kb_type(str(dados_df.loc[index, 'Produto']))
-       bot.enter()
-
-       # Via ADM
-       bot.kb_type(dados_df.loc[index, 'Via Adm'])
-       bot.enter()
-
-       # Recipiente
-       bot.kb_type(dados_df.loc[index, 'Recipiente'])
-       bot.enter()
-
-       # Volume 
-       bot.kb_type(str(dados_df.loc[index, 'Volume']))
-       bot.enter()
-    
-       
-       # Escolha de Horários
-       bot.kb_type("0")
-       bot.enter()
-       bot.kb_type("0")
-       bot.enter()
-       if not bot.find( "0 Hora", matching=0.97, waiting_time=10000):
-           not_found("0 Hora")
-       bot.click_relative(7, 8)
-
-       #Separando e marcando os horários
-       hora = dados_df.loc[index, 'Horários']
-       hora_separada = hora.split('/')
-       hora_separada = [int(h) for h in hora_separada]
-       #print(hora_separada)
-       executar_acoes(bot, hora_separada)
-
-       # Achando e Escrevendo Quantitativo de embalagens
-       if not bot.find( "Quantitativo de embalagens", matching=0.97, waiting_time=10000):
-           not_found("Quantitativo de embalagens")
-       bot.click_relative(12, 46)
-
-       if not bot.find( "Escolha uma opcao", matching=0.97, waiting_time=10000):
-           not_found("Escolha uma opcao")
-       bot.click_relative(242, 7)
-       #Segundo CLick se mostrou necessário neste tipo de campo de informação
-       bot.click()
-
-       bot.kb_type(dados_df.loc[index, 'Quantidade de embalagens'])
-       bot.enter()
-       bot.enter()    
-
        print(index)
+       
+
+
 
 
 
@@ -219,6 +198,8 @@ def not_found(label):
 
 if __name__ == '__main__':
     main()
+
+
 
 
 
