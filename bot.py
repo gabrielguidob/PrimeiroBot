@@ -16,6 +16,7 @@
 
 
 # ETAPA 4
+# Alterar na função onde separa os numeros das horas > retirar espaços em branco > as vezes vem 03/09... fazer com q funcione com o zero ou retirar 
 # Telas estilo instalar software, avançar/voltar/cancelar
 # Primeira tela escolhe a planilha
 # Segunda tela: pergunta se existe novos pacientes a serem cadastrados > se sim > rodar função para cadastrar novos pacientes (Arquivo novo bot) 
@@ -24,6 +25,7 @@
 # Terceira tela: se não > avançar
 # Quarta tela: aviso: sertifique-se que o sistema aporte esteja aberto e tela maximizada e visível + botão rodar/cancelar/rodar
 # Sequencia para rodar o bot: 1 > função atualizar leito; 2 > função cadastrar paciente; 3 > bot padrão 
+
 """
 Cadastrar novo paciente: (Funciona ctrl v)
 Arquivos > Cadastro > Paciente > codigo cliente > enter no codigo do paciente que gera um novo > colar o nome do paciente > enter > enter > enter > colar Nr. Atend. no registro hospitalar > numero do leito > deixar tudo adulto por enquanto > 2 enter
