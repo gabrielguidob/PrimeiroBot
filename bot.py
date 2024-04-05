@@ -10,9 +10,28 @@
 #Ultima letra; Final com " A", " B", etc; Clique relativo > Descrição > Primeira linha DIFICULDADE
 
 # ETAPA 3
-# Trocar inicio da automatização para clics com o MOUSE 
-# 1 - Cod cliente > enter > enter > funcao codigo paciente ate clicar no nome >  enter pop up > (AS VEZES DA ERRO DEPOIS DO PRIMEIRO POP UP)/(AS VEZES VAI PARA O OK POR NADA) > hora pedido > horario de entrega > unidade... > mouse no CRM
-# 2 - funcao codigo paciente ate clicar no nome > (foi para registro hospitalar)/(Precisa percorrer todos os campos antes de unidade) > Unidade... > CRM
+# Trocar inicio da automatização para clics com o MOUSE FEITO
+# 1 - Cod cliente > enter > enter > funcao codigo paciente ate clicar no nome >  enter pop up > (AS VEZES DA ERRO DEPOIS DO PRIMEIRO POP UP)/(AS VEZES VAI PARA O OK POR NADA) > hora pedido > horario de entrega > unidade... > mouse no CRM FEITO
+# 2 - funcao codigo paciente ate clicar no nome > (foi para registro hospitalar)/(Precisa percorrer todos os campos antes de unidade) > Unidade... > CRM FEITO
+
+
+# ETAPA 4
+# Telas estilo instalar software, avançar/voltar/cancelar
+# Primeira tela escolhe a planilha
+# Segunda tela: pergunta se existe novos pacientes a serem cadastrados > se sim > rodar função para cadastrar novos pacientes (Arquivo novo bot) 
+# Segunda tela: se não > Avançar
+# Terceira tela: existe pacientes para atualizar leito? > Se sim > Mostrar a lista dos nomes dos pacientes com check box para a manipuladora escolher quais pacientes precisa atualizar o leito > rodar função para atualizar os leitos (arquivo novo do bot) > Tentar não mostrar os pacientes que precisam ser cadastrados
+# Terceira tela: se não > avançar
+# Quarta tela: aviso: sertifique-se que o sistema aporte esteja aberto e tela maximizada e visível + botão rodar/cancelar/rodar
+# Sequencia para rodar o bot: 1 > função atualizar leito; 2 > função cadastrar paciente; 3 > bot padrão 
+"""
+Cadastrar novo paciente: (Funciona ctrl v)
+Arquivos > Cadastro > Paciente > codigo cliente > enter no codigo do paciente que gera um novo > colar o nome do paciente > enter > enter > enter > colar Nr. Atend. no registro hospitalar > numero do leito > deixar tudo adulto por enquanto > 2 enter
+
+Alterar paciente: 
+Arquivos > Cadastro > Paciente > codigo cliente > F2 msm função pra escrever o nome > apos isso vai direto para o botao alterar, apenas apertar enter > depois apertar mais 4 enter > paste no numero do leito > mais 3 enter 
+"""
+
 
 # Importações necessárias
 from botcity.core import DesktopBot
