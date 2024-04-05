@@ -23,7 +23,7 @@
 # Segunda tela: se não > Avançar
 # Terceira tela: existe pacientes para atualizar leito? > Se sim > Mostrar a lista dos nomes dos pacientes com check box para a manipuladora escolher quais pacientes precisa atualizar o leito > rodar função para atualizar os leitos (arquivo novo do bot) > Tentar não mostrar os pacientes que precisam ser cadastrados
 # Terceira tela: se não > avançar
-# Quarta tela: aviso: sertifique-se que o sistema aporte esteja aberto e tela maximizada e visível + botão rodar/cancelar/rodar
+# Quarta tela: aviso: sertifique-se que o sistema aporte esteja aberto e tela maximizada e visível + botão rodar/cancelar/rodar + escolher velocidade (rapida como padrao)
 # Sequencia para rodar o bot: 1 > função atualizar leito; 2 > função cadastrar paciente; 3 > bot padrão 
 
 """
