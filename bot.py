@@ -14,91 +14,124 @@
 # 1 - Cod cliente > enter > enter > funcao codigo paciente ate clicar no nome >  enter pop up > (AS VEZES DA ERRO DEPOIS DO PRIMEIRO POP UP)/(AS VEZES VAI PARA O OK POR NADA) > hora pedido > horario de entrega > unidade... > mouse no CRM
 # 2 - funcao codigo paciente ate clicar no nome > (foi para registro hospitalar)/(Precisa percorrer todos os campos antes de unidade) > Unidade... > CRM
 
-# Import for the Desktop Bot
+# Importações necessárias
 from botcity.core import DesktopBot
-
-# Import for integration with BotCity Maestro SDK
-from botcity.maestro import *
-
-# Importando biblioteca pandas
+from botcity.maestro import BotMaestroSDK
 import pandas as pd
-
-# Importando biblioteca Openpyxl
-from openpyxl import Workbook, load_workbook
-
-
+from openpyxl import load_workbook
 import keyboard
+from inserir import (
+    verificando_solicitacao, inserir_codigo_cliente, inserir_codigo_paciente,
+    inserir_hora, inserir_unidade_de_interacao, inserir_crm_padrao, inserir_produto, inserir_via_adm, inserir_recipiente,
+    inserir_volume, inserir_horarios, inserir_quantitativo_embalagens, pop_up_erro)
 
-from inserir import verificando_solicitacao, inserir_codigo_cliente, inserir_codigo_paciente, inserir_hora, inserir_unidade_de_interacao, inserir_unidade_de_interacao2, inserir_crm_padrao, inserir_produto, inserir_via_adm, inserir_recipiente, inserir_volume, inserir_horarios,  inserir_quantitativo_embalagens
-
-# Disable errors if we are not connected to Maestro
+# Desabilita erros se não estiver conectado ao Maestro
 BotMaestroSDK.RAISE_NOT_CONNECTED = False
+
+def not_found(label):
+    """
+    Função chamada quando um elemento esperado não é encontrado na interface.
+    
+    :param label: Rótulo do elemento que não foi encontrado.
+    """
+    print(f"Elemento não encontrado: {label}")
+
+def ler_numero_cliente(caminho_dados):
+    """
+    Lê o número do cliente de uma planilha Excel específica.
+
+    :param caminho_dados: Caminho para a planilha de onde o número do cliente será lido.
+    :return: Número do cliente como uma string.
+    """
+    workbook = load_workbook(caminho_dados)
+    sheet = workbook.active
+    return str(sheet["C1"].value)
+
+def preparar_dados(caminho_dados, caminho_comum):
+    """
+    Prepara e retorna os DataFrames necessários para a automação a partir das planilhas do Excel.
+     caminho_comum
+    :param caminho_dados: Caminho para a planilha de dados específica.
+    :param caminho_comum: Caminho comum para as planilhas de produtos e via de administração.
+    :param caminho_comum: Caminho para a planilha de quantitativo de embalagens.
+    """
+    # Leitura da planilha de dados específica
+    dados_df = pd.read_excel(caminho_dados, skiprows=2, sheet_name='Planilha1')
+
+    # Leitura das planilhas com caminho comum
+    produtos_df = pd.read_excel(caminho_comum, sheet_name='Produto')
+    via_adm_df = pd.read_excel(caminho_comum, sheet_name='Via Adm')
+
+    # Adicionando a coluna CodProduto Sistema
+    dados_df = pd.merge(dados_df, produtos_df, left_on='Produto', right_on='Produto Prescrição', how='left')
+    # Após o merge, você pode querer remover a coluna duplicada de 'Produto Prescrição' se não precisar dela
+    dados_df.drop(columns=['Produto Prescrição'], inplace=True)
+
+    # Adicionando a coluna Via Adm Prescrição
+    dados_df = pd.merge(dados_df, via_adm_df, left_on='Via Adm', right_on='Via Adm Prescrição', how='left')
+    # Após o merge, você pode querer remover a coluna duplicada de 'Produto Prescrição' se não precisar dela
+    dados_df.drop(columns=['Via Adm Prescrição'], inplace=True)
+
+    # Criando a quantitativo_embalagens_df
+    quantitativo_embalagens_df = pd.read_excel(caminho_comum, sheet_name='Quantitativo Embalagens')
+
+    return dados_df, quantitativo_embalagens_df
+
+def encontrar_quantitativo(row, quantitativo_embalagens_df):
+    """
+    Encontra o quantitativo sistema correspondente a partir dos dados da linha e da tabela de quantitativo de embalagens.
+
+    :param row: Linha de dados contendo informações sobre recipiente e volume.
+    :param quantitativo_embalagens_df: DataFrame contendo informações sobre quantitativo de embalagens.
+    :return: O quantitativo sistema correspondente.
+    """
+    recipiente = row['Recipiente']
+    volume = row['Volume']
+
+    # Filtra quantitativo_embalagens_df pelo recipiente e verifica o intervalo de volume
+    filtro = quantitativo_embalagens_df[(quantitativo_embalagens_df['Recipiente'] == recipiente) & 
+                                        (quantitativo_embalagens_df['Volume inicial'] <= volume) & 
+                                        (quantitativo_embalagens_df['Volume final'] >= volume)]
+
+    if not filtro.empty:
+        return filtro.iloc[0]['Quantitativo Sistema']  # Retorna o primeiro correspondente
+    return None  # Retorna None se não houver correspondente
 
 
 def main():
-
+    """
+    Função principal que executa a automação.
+    """
+    # Configuração inicial
     espera = int(input('Tempo de espera: '))
-
     bot = DesktopBot()
 
+    # Caminhos para as planilhas
+    caminho_dados = 'P:\LA VITA\TI\BotCity\Planilha de Dados HOMOLOGAÇÃO 02.xlsx'
+    caminho_comum = 'P:\LA VITA\TI\BotCity\Planilha de Configuração HOMOLOGAÇÃO 02.xlsx'
 
+    # Obtendo o número do cliente da planilha
+    num_cliente = ler_numero_cliente(caminho_dados)
+
+    # Preparando os dados
+    dados_df, quantitativo_embalagens_df = preparar_dados(caminho_dados, caminho_comum)
+
+    # Aplicando a função para encontrar o 'Quantitativo Sistema' correspondente para cada linha
+    dados_df['Quantitativo Sistema'] = dados_df.apply(encontrar_quantitativo, quantitativo_embalagens_df = quantitativo_embalagens_df, axis=1)
+
+    # Verificando e abrindo o campo de SOLICITAÇÕES]
     verificando_solicitacao(bot, not_found)
+
+    print(dados_df[['Via Adm Sistema', 'CodProduto Sistema']])
     
-    # 1 Leitura do arquivo Excel + variavel Num do Cliente
-    planilha = load_workbook ('P:\LA VITA\TI\BotCity\Planilha de Dados HOMOLOGAÇÃO 01 - V4.xlsx')
-    aba_ativa = planilha.active
-    num_cliente = str(aba_ativa["C1"].value) 
 
+    for index, row in dados_df.iterrows():
+       # Variavel para testes
+       passo_a_passo = False
 
-    # 2 Leitura do arquivo Excel
-    caminho_do_arquivo = 'P:\LA VITA\TI\BotCity\Planilha de Dados HOMOLOGAÇÃO 02.xlsx'
-    dados_df = pd.read_excel(caminho_do_arquivo, skiprows=2)
+       # Puxando a relação Quantitativo Sistema
+       quantitativo = row['Quantitativo Sistema']
 
-    #Criando a produtos_df
-    caminho_do_arquivo_produto = 'P:\LA VITA\TI\BotCity\Planilha de Configuração HOMOLOGAÇÃO 02.xlsx'
-    produtos_df = pd.read_excel(caminho_do_arquivo_produto, sheet_name='Produto')
-
-    #Criando a via_adm_df
-    caminho_do_arquivo_via_adm = 'P:\LA VITA\TI\BotCity\Planilha de Configuração HOMOLOGAÇÃO 02.xlsx'
-    via_adm_df = pd.read_excel(caminho_do_arquivo_via_adm, sheet_name='Via Adm')
-
-
-    #Adicionando a coluna CodProduto Sistema
-    dados_produtos_df = pd.merge(dados_df, produtos_df, left_on='Produto', right_on='Produto Prescrição', how='left')
-    # Após o merge, você pode querer remover a coluna duplicada de 'Produto Prescrição' se não precisar dela
-    dados_produtos_df.drop(columns=['Produto Prescrição'], inplace=True)
-
-    #Adicionando a coluna Via Adm Prescrição
-    dados_completos_df = pd.merge(dados_df, via_adm_df, left_on='Via Adm', right_on='Via Adm Prescrição', how='left')
-    # Após o merge, você pode querer remover a coluna duplicada de 'Produto Prescrição' se não precisar dela
-    dados_completos_df.drop(columns=['Via Adm Prescrição'], inplace=True)
-
-
-    #Criando a quantitativo_embalagens_df
-    caminho_do_arquivo_quantitativo_embalagens = 'P:\LA VITA\TI\BotCity\Planilha de Configuração HOMOLOGAÇÃO 02.xlsx'
-    quantitativo_embalagens_df = pd.read_excel(caminho_do_arquivo_quantitativo_embalagens, sheet_name='Quantitativo Embalagens')
-
-
-    passo_a_passo = True
-
-
-    def encontrar_quantitativo(row):
-        recipiente = row['Recipiente']
-        volume = row['Volume']
-
-        # Filtra quantitativo_df pelo recipiente e verifica o intervalo de volume
-        filtro = quantitativo_embalagens_df[(quantitativo_embalagens_df['Recipiente'] == recipiente) & (quantitativo_embalagens_df['Volume inicial'] <= volume) & (quantitativo_embalagens_df['Volume final'] >= volume)]
-
-        if not filtro.empty:
-            return filtro.iloc[0]['Quantitativo Sistema']  # Retorna o primeiro correspondente
-        return None  # Retorna None se não houver correspondente
-
-    # Aplica a função a cada linha de dados_df para encontrar o quantitativo sistema correspondente
-    dados_completos_df['Quantitativo Sistema'] = dados_completos_df.apply(encontrar_quantitativo, axis=1)
-
-
-    #Inicio do FOR para cadastrar do segundo paciente em diante
-    for index, row in dados_completos_df.iterrows():
        # Ignora a primeira linha, para começar no segundo paciente
        if index == 0:
 
@@ -109,7 +142,7 @@ def main():
                 keyboard.wait('ctrl')
 
 
-           inserir_codigo_paciente(bot, dados_completos_df, index, not_found, espera)
+           inserir_codigo_paciente(bot, dados_df, index, not_found, espera)
            # Aguarda tecla para continuar, se solicitado
            if passo_a_passo:
                 print("APERTA A TECLA KRAI 2")
@@ -118,38 +151,40 @@ def main():
 
            #Proximo enter fecha o popup
            bot.enter()
-           #bot.enter()
+
+           pop_up_erro(bot, not_found)
+
             # Aguarda tecla para continuar, se solicitado
            if passo_a_passo:
                 print("APERTA A TECLA KRAI 3")
                 keyboard.wait('ctrl')
 
                 #sleep(1)
-           inserir_hora(bot, espera)
-           #bot.enter()
+           inserir_hora(bot, espera, not_found, index)
+
            # Aguarda tecla para continuar, se solicitado
            if passo_a_passo:
                 print("APERTA A TECLA KRAI 4")
                 keyboard.wait('ctrl')
 
-           inserir_unidade_de_interacao(bot, dados_completos_df, index, espera)
+           inserir_unidade_de_interacao(bot, dados_df, index, espera, not_found)
            # Aguarda tecla para continuar, se solicitado
            if passo_a_passo:
                 print("APERTA A TECLA KRAI 5")
                 keyboard.wait('ctrl')
 
-           inserir_crm_padrao(bot, espera)
+           inserir_crm_padrao(bot, espera, not_found)
            # Aguarda tecla para continuar, se solicitado
            if passo_a_passo:
                 print("APERTA A TECLA KRAI 6")
                 keyboard.wait('ctrl')
 
-           inserir_produto(bot, dados_produtos_df, index, espera)
-           inserir_via_adm(bot, dados_completos_df, index)
-           inserir_recipiente(bot, dados_completos_df, index)
-           inserir_volume(bot, dados_completos_df, index)
-           inserir_horarios(bot, dados_completos_df, index, not_found)
-           inserir_quantitativo_embalagens(bot, dados_completos_df, index, not_found)
+           inserir_produto(bot, dados_df, index, espera)
+           inserir_via_adm(bot, dados_df, index)
+           inserir_recipiente(bot, dados_df, index)
+           inserir_volume(bot, dados_df, index)
+           inserir_horarios(bot, dados_df, index, not_found)
+           inserir_quantitativo_embalagens(bot, quantitativo, not_found)
 
        else:
            # Aguarda tecla para continuar, se solicitado
@@ -157,43 +192,44 @@ def main():
                 print("APERTA A TECLA KRAI 1")
                 keyboard.wait('ctrl')
 
-           inserir_codigo_paciente(bot, dados_completos_df, index, not_found, espera)
+           inserir_codigo_paciente(bot, dados_df, index, not_found, espera)
            # Aguarda tecla para continuar, se solicitado
            if passo_a_passo:
                 print("APERTA A TECLA KRAI 2")
                 keyboard.wait('ctrl')
 
-                #bot.enter()
-           #sleep(1)
-           #inserir_hora(bot)
-           inserir_unidade_de_interacao2(bot, dados_completos_df, index, not_found, espera)
-           # Aguarda tecla para continuar, se solicitado
-           if passo_a_passo:
-                print("APERTA A TECLA KRAI 3")
-                keyboard.wait('ctrl')
+           pop_up_erro(bot, not_found)
 
-           inserir_crm_padrao(bot, espera)
+           inserir_hora(bot, espera, not_found, index)
+
            # Aguarda tecla para continuar, se solicitado
            if passo_a_passo:
                 print("APERTA A TECLA KRAI 4")
                 keyboard.wait('ctrl')
 
-           inserir_produto(bot, dados_produtos_df, index, espera)
-           inserir_via_adm(bot, dados_completos_df, index)
-           inserir_recipiente(bot, dados_completos_df, index)
-           inserir_volume(bot, dados_completos_df, index)
-           inserir_horarios(bot, dados_completos_df, index, not_found)
-           inserir_quantitativo_embalagens(bot, dados_completos_df, index, not_found)    
+           inserir_unidade_de_interacao(bot, dados_df, index, espera, not_found)
+           # Aguarda tecla para continuar, se solicitado
+           if passo_a_passo:
+                print("APERTA A TECLA KRAI 3")
+                keyboard.wait('ctrl')
+
+           inserir_crm_padrao(bot, espera, not_found)
+           # Aguarda tecla para continuar, se solicitado
+           if passo_a_passo:
+                print("APERTA A TECLA KRAI 4")
+                keyboard.wait('ctrl')
+
+           inserir_produto(bot, dados_df, index, espera)
+           inserir_via_adm(bot, dados_df, index)
+           inserir_recipiente(bot, dados_df, index)
+           inserir_volume(bot, dados_df, index)
+           inserir_horarios(bot, dados_df, index, not_found)
+           inserir_quantitativo_embalagens(bot, quantitativo, not_found)
        
-       print(index)
+       # Log do progresso
+       print(f"Paciente {index + 1} processado.") 
        
 
-
-
-
-
-def not_found(label):
-    print(f"Element not found: {label}")
 
 
 if __name__ == '__main__':
