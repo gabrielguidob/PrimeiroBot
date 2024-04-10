@@ -50,6 +50,7 @@ def inserir_codigo_paciente(bot, dados_df, index, not_found, espera):
     :param espera: Tempo de espera (em segundos) após ações de digitação ou clique.
     """
     nome_paciente = dados_df.loc[index, 'Nome'].strip()[:-1]  # Removendo espaços e a última letra
+    sleep(espera)
     bot.key_f2()
     bot.kb_type(nome_paciente)
     sleep(2)
@@ -82,6 +83,9 @@ def pop_up_erro(bot, not_found):
                 if not bot.find( "horario entrega", matching=0.97, waiting_time=10000):
                     not_found("horario entrega")
                 bot.click_relative(17, 20)
+                sleep(1)
+                bot.click()
+                sleep(1)
                 bot.type_down()
                 break
             else:
@@ -261,3 +265,64 @@ def inserir_quantitativo_embalagens(bot, quantitativo, not_found):
 
 
 
+def inserir_codigo_cliente_cadastro(bot, not_found, num_cliente):
+    if not bot.find( "Codigo Cliente", matching=0.97, waiting_time=10000):
+        not_found("codigo_do_cliente_cadastro")
+    bot.click_relative(12, 32)
+    bot.control_a()
+    bot.backspace()
+    bot.kb_type(num_cliente)
+    bot.enter()
+    
+def abrir_cadastro_paciente(bot, not_found):
+    '''
+    if not bot.find( "arquivos", matching=0.97, waiting_time=1000):
+        if not bot.find( "cadastro", matching=0.97, waiting_time=1000):
+            if not bot.find( "Paciente Azul", matching=0.97, waiting_time=1000):
+                not_found("Paciente Azul")
+            bot.click()    
+        bot.click_relative(4, 7)
+    bot.click_relative(4, 6)
+    
+    if not bot.find( "cadastro", matching=0.97, waiting_time=500):
+        not_found("cadastro")
+    bot.click_relative(4, 7)
+    
+    if not bot.find( "paciente", matching=0.97, waiting_time=500):
+        if not bot.find( "Paciente Azul", matching=0.97, waiting_time=1000):
+                not_found("Paciente Azul")
+        bot.click()
+    bot.click()
+    '''
+    # Tenta encontrar e clicar em "Arquivos"
+
+    
+    if bot.find( "arquivos", matching=0.97, waiting_time=500) or bot.find( "arquivo azul mais", matching=0.97, waiting_time=500):
+        bot.click_relative(4, 6)
+    else:
+        print("Não encontrou 'Arquivos', tentando outra abordagem.")
+
+    # Tenta encontrar e clicar em "Cadastro"      
+    if bot.find( "cadastro", matching=0.97, waiting_time=500) or bot.find( "cadastro azul", matching=0.97, waiting_time=500):
+        bot.click_relative(4, 7)
+    else:
+        print("Não encontrou 'Cadastro', tentando outra abordagem.")
+        # Supondo que "Cadastro" possa ser acessado de maneira relativa a "Arquivos" ou outro elemento
+        # bot.click_relative(x, y) # ajuste x e y conforme necessário
+
+    # Tenta encontrar e clicar em "Paciente" ou "Paciente Azul"
+    if bot.find( "paciente", matching=0.97, waiting_time=500) or bot.find( "Paciente Azul", matching=0.97, waiting_time=500):
+        bot.click()
+    else:
+        not_found("Paciente/Paciente Azul")
+
+def inserir_codigo_paciente_leito(bot, nome_paciente, espera, not_found):
+    nome_paciente = nome_paciente.strip()[:-1]
+    sleep(espera)
+    bot.key_f2()
+    bot.kb_type(nome_paciente)
+    sleep(2)
+    if not bot.find( "Descricao", matching=0.97, waiting_time=10000):
+        not_found("Descricao")
+    bot.click_relative(0, 33)
+    sleep(espera)

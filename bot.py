@@ -20,15 +20,23 @@
 # Telas estilo instalar software, avançar/voltar/cancelar
 # Primeira tela escolhe a planilha
 # Segunda tela: pergunta se existe novos pacientes a serem cadastrados > se sim > rodar função para cadastrar novos pacientes (Arquivo novo bot) 
-# Segunda tela: se não > Avançar
-# Terceira tela: existe pacientes para atualizar leito? > Se sim > Mostrar a lista dos nomes dos pacientes com check box para a manipuladora escolher quais pacientes precisa atualizar o leito > rodar função para atualizar os leitos (arquivo novo do bot) > Tentar não mostrar os pacientes que precisam ser cadastrados
+# Segunda tela: se não > Avançar 
+# Terceira tela: existe pacientes para atualizar leito? > Se sim > Mostrar a lista dos Nomes da dados_df dos pacientes com check box para a manipuladora escolher quais pacientes precisa atualizar o leito > rodar função para atualizar os leitos (arquivo novo do bot) > Tentar não mostrar os pacientes que precisam ser cadastrados
 # Terceira tela: se não > avançar
 # Quarta tela: aviso: sertifique-se que o sistema aporte esteja aberto e tela maximizada e visível + botão rodar/cancelar/rodar + escolher velocidade (rapida como padrao)
 # Sequencia para rodar o bot: 1 > função atualizar leito; 2 > função cadastrar paciente; 3 > bot padrão 
 
 """
-Cadastrar novo paciente: (Funciona ctrl v)
-Arquivos > Cadastro > Paciente > codigo cliente > enter no codigo do paciente que gera um novo > colar o nome do paciente > enter > enter > enter > colar Nr. Atend. no registro hospitalar > numero do leito > deixar tudo adulto por enquanto > 2 enter
+O QUE PRECISO SABER:
+1: Como escolher arquivo e salvar em variavel
+2: Check box + check box salvando em variavel
+3: Mostrar df na tela + check box para cada linha 
+4: Botões Avançar/Voltar/Cancelar
+5: Add info em df/Arquivo
+"""
+
+"""
+
 
 Alterar paciente: 
 Arquivos > Cadastro > Paciente > codigo cliente > F2 msm função pra escrever o nome > apos isso vai direto para o botao alterar, apenas apertar enter > depois apertar mais 4 enter > paste no numero do leito > mais 3 enter 
@@ -41,10 +49,13 @@ from botcity.maestro import BotMaestroSDK
 import pandas as pd
 from openpyxl import load_workbook
 import keyboard
+from leito import atualizar_leitos
+from cadastrar import cadastrar_pacientes
 from inserir import (
     verificando_solicitacao, inserir_codigo_cliente, inserir_codigo_paciente,
     inserir_hora, inserir_unidade_de_interacao, inserir_crm_padrao, inserir_produto, inserir_via_adm, inserir_recipiente,
     inserir_volume, inserir_horarios, inserir_quantitativo_embalagens, pop_up_erro)
+
 
 # Desabilita erros se não estiver conectado ao Maestro
 BotMaestroSDK.RAISE_NOT_CONNECTED = False
@@ -119,23 +130,37 @@ def encontrar_quantitativo(row, quantitativo_embalagens_df):
     return None  # Retorna None se não houver correspondente
 
 
-def main():
+
+
+def main(pacientes_para_cadastro, pacientes_para_atualizar_leito, espera, caminho_dados, caminho_comum):
     """
-    Função principal que executa a automação.
+    Executa a automação baseada nos parâmetros fornecidos pela interface gráfica.
+
+    :param pacientes_para_cadastro: Lista de pacientes selecionados para cadastro.
+    :param pacientes_para_atualizar_leito: Lista de pacientes selecionados para atualização de leito.
+    :param espera: Tempo de espera para as operações de automação.
+    :param caminho_dados: Caminho para a planilha de dados específica.
+    :param caminho_comum: Caminho para a planilha de configuração comum.
     """
+
     # Configuração inicial
-    espera = int(input('Tempo de espera: '))
     bot = DesktopBot()
 
-    # Caminhos para as planilhas
-    caminho_dados = 'P:\LA VITA\TI\BotCity\Planilha de Dados HOMOLOGAÇÃO 02.xlsx'
-    caminho_comum = 'P:\LA VITA\TI\BotCity\Planilha de Configuração HOMOLOGAÇÃO 02.xlsx'
+    # Preparando os dados com os caminhos fornecidos pela interface
+    dados_df, quantitativo_embalagens_df = preparar_dados(caminho_dados, caminho_comum)
 
     # Obtendo o número do cliente da planilha
     num_cliente = ler_numero_cliente(caminho_dados)
 
-    # Preparando os dados
-    dados_df, quantitativo_embalagens_df = preparar_dados(caminho_dados, caminho_comum)
+    # Se houver pacientes para cadastro, chama a função de cadastro
+    if pacientes_para_cadastro:
+        cadastrar_pacientes(pacientes_para_cadastro, espera, dados_df, bot, not_found, num_cliente)
+
+    # Se houver pacientes para atualizar leito, chama a função de atualização de leito
+    if pacientes_para_atualizar_leito:
+        atualizar_leitos(pacientes_para_atualizar_leito, espera, dados_df, bot, not_found, num_cliente)
+
+
 
     # Aplicando a função para encontrar o 'Quantitativo Sistema' correspondente para cada linha
     dados_df['Quantitativo Sistema'] = dados_df.apply(encontrar_quantitativo, quantitativo_embalagens_df = quantitativo_embalagens_df, axis=1)
@@ -143,7 +168,7 @@ def main():
     # Verificando e abrindo o campo de SOLICITAÇÕES]
     verificando_solicitacao(bot, not_found)
 
-    print(dados_df[['Via Adm Sistema', 'CodProduto Sistema']])
+    print(dados_df[['Nome', 'Via Adm Sistema', 'CodProduto Sistema']])
     
 
     for index, row in dados_df.iterrows():
