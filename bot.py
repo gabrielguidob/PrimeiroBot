@@ -1,3 +1,4 @@
+# ETAPA 2 - FEITO
 #Criar repositorio no GitHub FEITO
 #Separar tudo em funções FEITO
 #Implementar abrir solicitações/solicitações de dietas FEITO
@@ -9,13 +10,13 @@
 #Baixar o plugin BotCity no vscode
 #Ultima letra; Final com " A", " B", etc; Clique relativo > Descrição > Primeira linha DIFICULDADE
 
-# ETAPA 3
+# ETAPA 3 - FEITO
 # Trocar inicio da automatização para clics com o MOUSE FEITO
 # 1 - Cod cliente > enter > enter > funcao codigo paciente ate clicar no nome >  enter pop up > (AS VEZES DA ERRO DEPOIS DO PRIMEIRO POP UP)/(AS VEZES VAI PARA O OK POR NADA) > hora pedido > horario de entrega > unidade... > mouse no CRM FEITO
 # 2 - funcao codigo paciente ate clicar no nome > (foi para registro hospitalar)/(Precisa percorrer todos os campos antes de unidade) > Unidade... > CRM FEITO
 
 
-# ETAPA 4
+# ETAPA 4 - FEITO
 # Alterar na função onde separa os numeros das horas > retirar espaços em branco > as vezes vem 03/09... fazer com q funcione com o zero ou retirar 
 # Telas estilo instalar software, avançar/voltar/cancelar
 # Primeira tela escolhe a planilha
@@ -25,22 +26,16 @@
 # Terceira tela: se não > avançar
 # Quarta tela: aviso: sertifique-se que o sistema aporte esteja aberto e tela maximizada e visível + botão rodar/cancelar/rodar + escolher velocidade (rapida como padrao)
 # Sequencia para rodar o bot: 1 > função atualizar leito; 2 > função cadastrar paciente; 3 > bot padrão 
+# Criar interface de logs
 
+# Etapa 5
 """
-O QUE PRECISO SABER:
-1: Como escolher arquivo e salvar em variavel
-2: Check box + check box salvando em variavel
-3: Mostrar df na tela + check box para cada linha 
-4: Botões Avançar/Voltar/Cancelar
-5: Add info em df/Arquivo
-"""
-
+FAZER COM QUE SEJA POSSIVEL APENAS ATUALIZAR LEITO OU CADASTRAR PACIENTE SEM SOLICITAR OS PEDIDOS
+COMENTAR TODAS AS DEFS NOVAS E ATUALIZAR AS ANTIGAS 
+#Ultima letra; Final com " A", " B", etc; Clique relativo > Descrição > Primeira linha DIFICULDADE
 """
 
 
-Alterar paciente: 
-Arquivos > Cadastro > Paciente > codigo cliente > F2 msm função pra escrever o nome > apos isso vai direto para o botao alterar, apenas apertar enter > depois apertar mais 4 enter > paste no numero do leito > mais 3 enter 
-"""
 
 
 # Importações necessárias

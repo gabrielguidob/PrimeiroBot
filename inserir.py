@@ -297,7 +297,22 @@ def inserir_quantitativo_embalagens(bot, quantitativo, not_found, espera):
 
 
 def inserir_codigo_cliente_cadastro(bot, not_found, num_cliente):
-    if not bot.find( "Codigo Cliente", matching=0.97, waiting_time=10000):
+    """
+    Insere o código do cliente na interface de cadastro.
+
+    Esta função busca o campo "Código Cliente" na interface, insere o número do cliente fornecido
+    e confirma a entrada. Se o campo não for encontrado, a função de callback `not_found` é chamada.
+
+    Parâmetros:
+        bot (DesktopBot): Instância do bot para interação com a interface.
+        not_found (function): Função de callback chamada quando um elemento não é encontrado.
+        num_cliente (str): Número do cliente a ser inserido no campo de código.
+
+    Retorna:
+        None
+    """
+    # Busca pelo campo "Código Cliente" e insere o número do cliente
+    if not bot.find("Codigo Cliente", matching=0.97, waiting_time=10000):
         not_found("codigo_do_cliente_cadastro")
     bot.click_relative(12, 32)
     bot.control_a()
@@ -306,6 +321,21 @@ def inserir_codigo_cliente_cadastro(bot, not_found, num_cliente):
     bot.enter()
     
 def abrir_cadastro_paciente(bot, not_found):  
+    """
+    Navega até a interface de cadastro de paciente.
+
+    Esta função tenta encontrar e clicar nos botões "Arquivos" e "Cadastro" para
+    navegar até a interface de cadastro de paciente. Se algum dos botões não for encontrado,
+    tenta uma abordagem alternativa. Se "Paciente" ou "Paciente Azul" não forem encontrados,
+    chama a função `not_found`.
+
+    Parâmetros:
+        bot (DesktopBot): Instância do bot para interação com a interface.
+        not_found (function): Função de callback chamada quando um elemento não é encontrado.
+
+    Retorna:
+        None
+    """
     if bot.find( "arquivos", matching=0.97, waiting_time=500) or bot.find( "arquivo azul mais", matching=0.97, waiting_time=500):
         bot.click_relative(4, 6)
     else:
@@ -324,6 +354,22 @@ def abrir_cadastro_paciente(bot, not_found):
         not_found("Paciente/Paciente Azul")
 
 def inserir_codigo_paciente_leito(bot, nome_paciente, espera, not_found):
+    """
+    Insere o código do paciente para atualizar leito.
+
+    Remove o último caractere do nome do paciente (presumindo que seja um espaço ou caracter especial),
+    abre a busca por nome de paciente, digita o nome, e seleciona o paciente na lista de descrição.
+    Se a descrição do paciente não for encontrada, chama a função `not_found`.
+
+    Parâmetros:
+        bot (DesktopBot): Instância do bot para interação com a interface.
+        nome_paciente (str): Nome do paciente a ser buscado e selecionado.
+        espera (int/float): Tempo de espera após certas ações, em segundos.
+        not_found (function): Função de callback chamada quando um elemento não é encontrado.
+
+    Retorna:
+        None
+    """
     nome_paciente = nome_paciente.strip()[:-1]
     sleep(espera)
     bot.key_f2()
