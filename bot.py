@@ -49,12 +49,14 @@ from botcity.maestro import BotMaestroSDK
 import pandas as pd
 from openpyxl import load_workbook
 import keyboard
+from time import sleep
 from leito import atualizar_leitos
 from cadastrar import cadastrar_pacientes
+from log import exibir_logs, adicionar_log
 from inserir import (
     verificando_solicitacao, inserir_codigo_cliente, inserir_codigo_paciente,
     inserir_hora, inserir_unidade_de_interacao, inserir_crm_padrao, inserir_produto, inserir_via_adm, inserir_recipiente,
-    inserir_volume, inserir_horarios, inserir_quantitativo_embalagens, pop_up_erro)
+    inserir_volume, inserir_horarios, inserir_quantitativo_embalagens, pop_up_erro, inserir_horario_entrega)
 
 
 # Desabilita erros se não estiver conectado ao Maestro
@@ -146,6 +148,9 @@ def main(pacientes_para_cadastro, pacientes_para_atualizar_leito, espera, caminh
     # Configuração inicial
     bot = DesktopBot()
 
+    # Variável para os logs finais
+    operacoes_logs = {}
+
     # Preparando os dados com os caminhos fornecidos pela interface
     dados_df, quantitativo_embalagens_df = preparar_dados(caminho_dados, caminho_comum)
 
@@ -154,11 +159,11 @@ def main(pacientes_para_cadastro, pacientes_para_atualizar_leito, espera, caminh
 
     # Se houver pacientes para cadastro, chama a função de cadastro
     if pacientes_para_cadastro:
-        cadastrar_pacientes(pacientes_para_cadastro, espera, dados_df, bot, not_found, num_cliente)
+        cadastrar_pacientes(pacientes_para_cadastro, espera, dados_df, bot, not_found, num_cliente, operacoes_logs)
 
     # Se houver pacientes para atualizar leito, chama a função de atualização de leito
     if pacientes_para_atualizar_leito:
-        atualizar_leitos(pacientes_para_atualizar_leito, espera, dados_df, bot, not_found, num_cliente)
+        atualizar_leitos(pacientes_para_atualizar_leito, espera, dados_df, bot, not_found, num_cliente, operacoes_logs)
 
 
 
@@ -167,8 +172,6 @@ def main(pacientes_para_cadastro, pacientes_para_atualizar_leito, espera, caminh
 
     # Verificando e abrindo o campo de SOLICITAÇÕES]
     verificando_solicitacao(bot, not_found)
-
-    print(dados_df[['Nome', 'Via Adm Sistema', 'CodProduto Sistema']])
     
 
     for index, row in dados_df.iterrows():
@@ -196,6 +199,7 @@ def main(pacientes_para_cadastro, pacientes_para_atualizar_leito, espera, caminh
 
 
            #Proximo enter fecha o popup
+           sleep(1)
            bot.enter()
 
            pop_up_erro(bot, not_found)
@@ -206,7 +210,10 @@ def main(pacientes_para_cadastro, pacientes_para_atualizar_leito, espera, caminh
                 keyboard.wait('ctrl')
 
                 #sleep(1)
+           inserir_horario_entrega(bot, not_found, espera)     
            inserir_hora(bot, espera, not_found, index)
+
+           pop_up_erro(bot, not_found)
 
            # Aguarda tecla para continuar, se solicitado
            if passo_a_passo:
@@ -226,11 +233,13 @@ def main(pacientes_para_cadastro, pacientes_para_atualizar_leito, espera, caminh
                 keyboard.wait('ctrl')
 
            inserir_produto(bot, dados_df, index, espera)
-           inserir_via_adm(bot, dados_df, index)
-           inserir_recipiente(bot, dados_df, index)
-           inserir_volume(bot, dados_df, index)
-           inserir_horarios(bot, dados_df, index, not_found)
-           inserir_quantitativo_embalagens(bot, quantitativo, not_found)
+           inserir_via_adm(bot, dados_df, index, espera)
+           inserir_recipiente(bot, dados_df, index, espera)
+           inserir_volume(bot, dados_df, index, espera)
+           inserir_horarios(bot, dados_df, index, not_found, espera)
+           inserir_quantitativo_embalagens(bot, quantitativo, not_found, espera)
+
+           
 
        else:
            # Aguarda tecla para continuar, se solicitado
@@ -266,20 +275,23 @@ def main(pacientes_para_cadastro, pacientes_para_atualizar_leito, espera, caminh
                 keyboard.wait('ctrl')
 
            inserir_produto(bot, dados_df, index, espera)
-           inserir_via_adm(bot, dados_df, index)
-           inserir_recipiente(bot, dados_df, index)
-           inserir_volume(bot, dados_df, index)
-           inserir_horarios(bot, dados_df, index, not_found)
-           inserir_quantitativo_embalagens(bot, quantitativo, not_found)
+           inserir_via_adm(bot, dados_df, index, espera)
+           inserir_recipiente(bot, dados_df, index, espera)
+           inserir_volume(bot, dados_df, index, espera)
+           inserir_horarios(bot, dados_df, index, not_found, espera)
+           inserir_quantitativo_embalagens(bot, quantitativo, not_found, espera)
        
        # Log do progresso
-       print(f"Paciente {index + 1} processado.") 
-       
+       adicionar_log(operacoes_logs, dados_df.loc[index, 'Nome'], "Solicitado")
 
+       
+       
+    exibir_logs(operacoes_logs)
 
 
 if __name__ == '__main__':
     main()
+    
 
 
 
