@@ -51,8 +51,8 @@ def atualizar_leitos(pacientes_para_atualizar_leito, espera, dados_df, bot, not_
 
         sleep(espera)  # Espera para garantir a sincronização com a interface do sistema
 
-    # Adiciona a operação de atualização de leito ao log de operações
-    adicionar_log(operacoes_logs, info_paciente['Nome'], "Leito")
+        # Adiciona a operação de atualização de leito ao log de operações
+        adicionar_log(operacoes_logs, info_paciente['Nome'], "Atualização do Leito")
 
     print("Todos os leitos dos pacientes selecionados foram atualizados.")
 

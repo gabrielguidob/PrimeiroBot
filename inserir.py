@@ -373,6 +373,7 @@ def inserir_codigo_paciente_leito(bot, nome_paciente, espera, not_found):
     nome_paciente = nome_paciente.strip()[:-1]
     sleep(espera)
     bot.key_f2()
+    sleep(1)
     bot.kb_type(nome_paciente)
     sleep(2)
     if not bot.find( "Descricao", matching=0.97, waiting_time=10000):

@@ -24,7 +24,7 @@
 # Segunda tela: se não > Avançar 
 # Terceira tela: existe pacientes para atualizar leito? > Se sim > Mostrar a lista dos Nomes da dados_df dos pacientes com check box para a manipuladora escolher quais pacientes precisa atualizar o leito > rodar função para atualizar os leitos (arquivo novo do bot) > Tentar não mostrar os pacientes que precisam ser cadastrados
 # Terceira tela: se não > avançar
-# Quarta tela: aviso: sertifique-se que o sistema aporte esteja aberto e tela maximizada e visível + botão rodar/cancelar/rodar + escolher velocidade (rapida como padrao)
+# Quarta tela: aviso: Certifique-se que o sistema aporte esteja aberto e tela maximizada e visível + botão rodar/cancelar/rodar + escolher velocidade (rapida como padrao)
 # Sequencia para rodar o bot: 1 > função atualizar leito; 2 > função cadastrar paciente; 3 > bot padrão 
 # Criar interface de logs
 
@@ -277,7 +277,7 @@ def main(pacientes_para_cadastro, pacientes_para_atualizar_leito, espera, caminh
            inserir_quantitativo_embalagens(bot, quantitativo, not_found, espera)
        
        # Log do progresso
-       adicionar_log(operacoes_logs, dados_df.loc[index, 'Nome'], "Solicitado")
+       adicionar_log(operacoes_logs, dados_df.loc[index, 'Nome'], "Cadastro da Prescrição")
 
        
        

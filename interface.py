@@ -16,7 +16,7 @@ class Application(tk.Tk):
         """
         super().__init__()
         self.geometry("600x400")  # Define o tamanho da janela
-        self.title("Automação de Cadastro de Pacientes")  # Define o título da janela
+        self.title("Automação de Cadastro de Prescrição")  # Define o título da janela
 
         self.define_estilo()  # Aplica os estilos definidos para a interface
 
@@ -300,7 +300,7 @@ class Application(tk.Tk):
 
         # Adiciona botões para iniciar, cancelar ou voltar
         button_iniciar = ttk.Button(button_frame, text="Rodar", command=self.executar_bot, style="TButton")
-        button_iniciar.pack(side=tk.LEFT, padx=5)
+        button_iniciar.pack(side=tk.RIGHT, padx=5)
 
         button_cancelar = ttk.Button(button_frame, text="Cancelar", command=self.cancelar, style="TButton")
         button_cancelar.pack(side=tk.RIGHT, padx=5)
