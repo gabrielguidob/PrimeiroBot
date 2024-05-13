@@ -15,9 +15,6 @@ from inserir import (
     inserir_volume, inserir_horarios, inserir_quantitativo_embalagens, pop_up_erro, inserir_horario_entrega, encontrar_mensagem_cadastrar_paciente)
 
 
-# para baixar o executavel pyinstaller --noconsole --onefile --add-data "resources;resources" interface.py
-
-
 # Desabilita erros se não estiver conectado ao Maestro
 BotMaestroSDK.RAISE_NOT_CONNECTED = False
 
