@@ -15,6 +15,9 @@ from inserir import (
     inserir_volume, inserir_horarios, inserir_quantitativo_embalagens, pop_up_erro, inserir_horario_entrega, encontrar_mensagem_cadastrar_paciente)
 
 
+# para baixar o executavel pyinstaller --noconsole --onefile --add-data "resources;resources" interface.py
+
+
 # Desabilita erros se não estiver conectado ao Maestro
 BotMaestroSDK.RAISE_NOT_CONNECTED = False
 
@@ -206,10 +209,10 @@ def main(pacientes_selecionados, espera, caminho_dados, caminho_comum):
            encontrar_mensagem_cadastrar_paciente(index, espera, dados_df, bot, not_found, operacoes_logs)
            sleep(1)
            bot.enter()
-           pop_up_erro(bot, not_found)                       
+           pop_up_erro(bot, not_found, espera, hora_entrega)                       
            inserir_horario_entrega(bot, not_found, espera, hora_entrega)     
            inserir_hora(bot, espera, not_found, index, hora_entrega)
-           pop_up_erro(bot, not_found)           
+           pop_up_erro(bot, not_found, espera, hora_entrega)           
            inserir_unidade_de_interacao(bot, dados_df, index, espera, not_found)           
            inserir_crm_padrao(bot, espera, not_found)
            inserir_produto(bot, dados_df, index, espera)
@@ -223,7 +226,7 @@ def main(pacientes_selecionados, espera, caminho_dados, caminho_comum):
            
            inserir_codigo_paciente(bot, dados_df, index, not_found, espera, numero_cliente)
            encontrar_mensagem_cadastrar_paciente(index, espera, dados_df, bot, not_found, operacoes_logs)
-           pop_up_erro(bot, not_found)
+           pop_up_erro(bot, not_found, espera, hora_entrega)
            inserir_hora(bot, espera, not_found, index, hora_entrega)
            inserir_unidade_de_interacao(bot, dados_df, index, espera, not_found)
            inserir_crm_padrao(bot, espera, not_found)

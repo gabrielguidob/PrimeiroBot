@@ -92,7 +92,7 @@ def inserir_codigo_paciente(bot, dados_df, index, not_found, espera, numero_clie
     sleep(espera)
 
 
-def pop_up_erro(bot, not_found):
+def pop_up_erro(bot, not_found, espera, hora_entrega):
     """
     Detecta e lida com um popup de erro recorrente pressionando Enter sempre que ele aparecer.
 
@@ -102,18 +102,20 @@ def pop_up_erro(bot, not_found):
     contador = 0
 
     while True:
-        contador += contador 
         # Tenta encontrar o popup de erro pela descrição
-        if bot.find( "mensagem da pagina da web", matching=0.97, waiting_time=1000):
+        if bot.find("favor horario pedido", matching=0.97, waiting_time=1000):            
+            bot.click_relative(160, 63)
+
             # Pressiona Enter para fechar o popup
-            bot.enter()
+            #bot.enter()
+            contador += 1
             sleep(1)
             
 
         else: 
-            if contador > 1:
+            if contador >= 0:
             # Após os pop-ups acabarem, o sistema vai para Horário de entrega e só sai se escolher um horario
-                inserir_horario_entrega(bot, not_found)
+                inserir_horario_entrega(bot, not_found, espera, hora_entrega)
                 
                 break
             else:
@@ -136,15 +138,20 @@ def inserir_hora(bot, espera, not_found, index, hora_entrega):
     :param espera: Tempo de espera (em segundos) após ações de digitação ou clique.
     :param not_found: Função a ser chamada caso o elemento não seja encontrado.
     """
-    if not bot.find( "hora pedido", matching=0.97, waiting_time=10000):
+
+    if not bot.find("hora pedido", matching=0.97, waiting_time=10000):
         not_found("hora pedido")
-    bot.click_relative(13, 31)
+    bot.click_relative(10, 29)
+    if not bot.find("hora pedido", matching=0.97, waiting_time=10000):
+        not_found("hora pedido")
+    bot.click_relative(10, 29)
+
     sleep(espera)
 
-    
     if index == 0:
         # Inserindo o horário uma vez 
         bot.kb_type(hora_formatada)
+        print(f'Hora formatada = {hora_formatada}')
         sleep(espera)
         # Clicando e escolhendo o Horario de entrega
         inserir_horario_entrega(bot, not_found, espera, hora_entrega)
