@@ -1,9 +1,8 @@
 from time import sleep
 import pandas as pd
-from inserir import inserir_codigo_cliente_cadastro, abrir_cadastro_paciente
 from log import adicionar_log
 
-def cadastrar_pacientes(pacientes_para_cadastro, espera, dados_df, bot, not_found, num_cliente, operacoes_logs):
+def cadastrar_paciente(index, espera, dados_df, bot, not_found, operacoes_logs):
     """
     Cadastra novos pacientes no sistema.
 
@@ -23,39 +22,42 @@ def cadastrar_pacientes(pacientes_para_cadastro, espera, dados_df, bot, not_foun
     Retorna:
         None
     """
-    if not pacientes_para_cadastro:
-        print("Nenhum paciente selecionado para cadastro.")
-        return
-
-    # Filtra o DataFrame para incluir apenas os pacientes selecionados para cadastro
-    dados_df_filtrado = dados_df[dados_df['Nome'].isin(pacientes_para_cadastro)]
-
-    # Inicia o processo de cadastro no sistema
-    abrir_cadastro_paciente(bot, not_found)
-    
-    # Realiza o cadastro para cada paciente filtrado
-    for _, info_paciente in dados_df_filtrado.iterrows():
+    #if not pacientes_para_cadastro:
+    #    print("Nenhum paciente selecionado para cadastro.")
+    #    return
+#
+    ## Filtra o DataFrame para incluir apenas os pacientes selecionados para cadastro
+    #dados_df_filtrado = dados_df[dados_df['Nome'].isin(pacientes_para_cadastro)]
+#
+    ## Inicia o processo de cadastro no sistema
+    #abrir_cadastro_paciente(bot, not_found)
+    #
+    ## Realiza o cadastro para cada paciente filtrado
+    #for _, info_paciente in dados_df_filtrado.iterrows():
         
-        # Sequência de comandos para inserir informações do paciente no sistema
-        inserir_codigo_cliente_cadastro(bot, not_found, num_cliente)
-        bot.enter()
-        bot.kb_type(info_paciente['Nome'])
-        bot.enter()
-        bot.enter()
-        bot.enter()
-        bot.kb_type(str(info_paciente['Nr. Atend.']))
-        bot.enter()
-        bot.kb_type(str(info_paciente['Leito']))
-        bot.enter()
-        bot.kb_type('ADULTO')  # Assume-se que todos os pacientes são adultos por padrão
-        bot.enter()
-        bot.enter()
-
-        # Aguarda a sincronização com a interface do sistema
-        sleep(espera)
-
-        # Registra a operação de cadastro no log
-        adicionar_log(operacoes_logs, info_paciente['Nome'], "Cadastro do Paciente")
+    # Sequência de comandos para inserir informações do paciente no sistema
+    #inserir_codigo_cliente_cadastro(bot, not_found, num_cliente)
+    #bot.enter()
+    sleep(1)
+    bot.enter()
+    bot.kb_type(dados_df.loc[index, 'Paciente'])
+    bot.enter()
+    bot.enter()
+    bot.enter()
+    nr_atend = dados_df.loc[index, 'Nr. Atend.']
+    bot.kb_type(nr_atend)
+    bot.enter()
+    nr_leito = dados_df.loc[index, 'Nr. Leito']
+    print(nr_leito)
+    bot.kb_type(nr_leito)
+    bot.enter()
+    bot.kb_type('ADULTO')  # Assume-se que todos os pacientes são adultos por padrão
+    bot.enter()
+    bot.enter()
+    # Aguarda a sincronização com a interface do sistema
+    sleep(espera)
+    # Registra a operação de cadastro no log
+    adicionar_log(operacoes_logs, dados_df.loc[index, 'Paciente'], "Cadastro do Paciente")
 
     print("Todos os pacientes selecionados foram cadastrados.")
 
