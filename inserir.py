@@ -103,7 +103,7 @@ def pop_up_erro(bot, not_found, espera, hora_entrega):
 
     while True:
         # Tenta encontrar o popup de erro pela descrição
-        if bot.find("favor horario pedido", matching=0.97, waiting_time=1000):            
+        if bot.find( "favor horario pedido", matching=0.97, waiting_time=1000):            
             bot.click_relative(160, 63)
 
             # Pressiona Enter para fechar o popup
@@ -139,10 +139,10 @@ def inserir_hora(bot, espera, not_found, index, hora_entrega):
     :param not_found: Função a ser chamada caso o elemento não seja encontrado.
     """
 
-    if not bot.find("hora pedido", matching=0.97, waiting_time=10000):
+    if not bot.find( "hora pedido", matching=0.97, waiting_time=10000):
         not_found("hora pedido")
     bot.click_relative(10, 29)
-    if not bot.find("hora pedido", matching=0.97, waiting_time=10000):
+    if not bot.find( "hora pedido", matching=0.97, waiting_time=10000):
         not_found("hora pedido")
     bot.click_relative(10, 29)
 
@@ -177,7 +177,7 @@ def inserir_unidade_de_interacao(bot, dados_df, index, espera, not_found):
     """
     nome_paciente = dados_df.loc[index, 'Paciente']
     if  nome_paciente == 'COTA EXTRA':
-        if not bot.find("No. prescricao", matching=0.97, waiting_time=10000):
+        if not bot.find( "No. prescricao", matching=0.97, waiting_time=10000):
             not_found("No. prescricao")
         bot.click_relative(8, 17)
         
@@ -343,9 +343,9 @@ def inserir_quantitativo_embalagens(bot, quantitativo, not_found, espera):
 
 
 def encontrar_mensagem_cadastrar_paciente(index, espera, dados_df, bot, not_found, operacoes_logs):
-    if bot.find("popup cadastrar paciente", matching=0.97, waiting_time=500):  
+    if bot.find("paciente nao cadastrado", matching=0.97, waiting_time=500):  
         bot.enter()
-        if not bot.find("entra no cadastro paciente", matching=0.97, waiting_time=1000):
+        if not bot.find( "entra no cadastro paciente", matching=0.97, waiting_time=1000):
             not_found("entra no cadastro paciente")
         bot.click()
         cadastrar_paciente(index, espera, dados_df, bot, not_found, operacoes_logs)
@@ -353,6 +353,7 @@ def encontrar_mensagem_cadastrar_paciente(index, espera, dados_df, bot, not_foun
         bot.enter()
     else: 
         return False  
+
     
 
 def inserir_codigo_cliente_cadastro(bot, not_found, numero_cliente):
@@ -371,7 +372,7 @@ def inserir_codigo_cliente_cadastro(bot, not_found, numero_cliente):
         None
     """
     # Busca pelo campo "Código Cliente" e insere o número do cliente
-    if not bot.find("Codigo Cliente", matching=0.97, waiting_time=10000):
+    if not bot.find( "Codigo Cliente", matching=0.97, waiting_time=10000):
         not_found("codigo_do_cliente_cadastro")
     bot.click_relative(12, 32)
     bot.control_a()
