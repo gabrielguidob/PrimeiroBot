@@ -1,54 +1,38 @@
-# Importando biblioteca pandas
-import pandas as pd
+import re
 
-# 2 Leitura do arquivo Excel
-caminho_do_arquivo = 'P:\LA VITA\TI\BotCity\Planilha de Dados HOMOLOGAÇÃO 01 - V4.xlsx'
-dados_df = pd.read_excel(caminho_do_arquivo, skiprows=2)
+def padronizar_horarios(horario):
+    # Remover caracteres indesejados (tudo exceto dígitos e barra)
+    horario_limpo = re.sub(r'[^\d/]', '', horario)
+    # Dividir a string nos separadores de barra
+    partes = horario_limpo.split('/')
+    # Remover espaços em branco extras, zeros à esquerda e converter para formato desejado
+    partes_limpias = [str(int(part.strip())) for part in partes if part.strip()]
+    # Reunir tudo de volta com barras
+    return '/'.join(partes_limpias)
 
-#Criando a produtos_df
-caminho_do_arquivo_produto = 'P:\LA VITA\TI\BotCity\Planilha de Configuração HOMOLOGAÇÃO 02.xlsx'
-produtos_df = pd.read_excel(caminho_do_arquivo_produto, sheet_name='Produto')
+# Exemplo de uso:
+horario_exemplo = "H00/03/6 /07..."
+horario_padronizado = padronizar_horarios(horario_exemplo)
+print(horario_padronizado)
 
-#Criando a via_adm_df
-caminho_do_arquivo_via_adm = 'P:\LA VITA\TI\BotCity\Planilha de Configuração HOMOLOGAÇÃO 02.xlsx'
-via_adm_df = pd.read_excel(caminho_do_arquivo_via_adm, sheet_name='Via Adm')
+testes = [
+    "00/03/6/07",
+    "H00/H1/05/H06/",
+    "0/ 6/ 7/ 09/",
+    "0/3/6/7"
+]
 
-#Adicionando a coluna CodProduto Sistema
-dados_produtos_df = pd.merge(dados_df, produtos_df, left_on='Produto', right_on='Produto Prescrição', how='left')
-
-# Após o merge, você pode querer remover a coluna duplicada de 'Produto Prescrição' se não precisar dela
-dados_produtos_df.drop(columns=['Produto Prescrição'], inplace=True)
-
-#Adicionando a coluna ViaAdm Sistema
-dados_completos2_df = pd.merge(dados_df, via_adm_df, left_on='Via Adm', right_on='Via Adm Prescrição', how='left')
-
-# Após o merge, você pode querer remover a coluna duplicada de 'Produto Prescrição' se não precisar dela
-dados_completos2_df.drop(columns=['Via Adm Prescrição'], inplace=True)
-
-
-#Criando a quantitativo_embalagens_df
-caminho_do_arquivo_quantitativo_embalagens = 'P:\LA VITA\TI\BotCity\Planilha de Configuração HOMOLOGAÇÃO 02.xlsx'
-quantitativo_embalagens_df = pd.read_excel(caminho_do_arquivo_quantitativo_embalagens, sheet_name='Quantitativo Embalagens')
+for teste in testes:
+    print(padronizar_horarios(teste))
 
 
 
-def encontrar_quantitativo(row):
-    recipiente = row['Recipiente']
-    volume = row['Volume']
-    
-    # Filtra quantitativo_df pelo recipiente e verifica o intervalo de volume
-    filtro = quantitativo_embalagens_df[(quantitativo_embalagens_df['Recipiente'] == recipiente) & (quantitativo_embalagens_df['Volume inicial'] <= volume) & (quantitativo_embalagens_df['Volume final'] >= volume)]
-    
-    if not filtro.empty:
-        return filtro.iloc[0]['Quantitativo Sistema']  # Retorna o primeiro correspondente
-    return None  # Retorna None se não houver correspondente
-
-# Aplica a função a cada linha de dados_df para encontrar o quantitativo sistema correspondente
-dados_completos2_df['Quantitativo Sistema'] = dados_completos2_df.apply(encontrar_quantitativo, axis=1)
 
 
+horarios = padronizar_horarios(horario_exemplo)
 
-#print(dados_completos2_df)
-print(dados_completos2_df.drop(['Nome', 'Un. Internação', 'Volume', 'Horários', 'Via Adm'], axis=1))
-print(dados_produtos_df['CodProduto Sistema'])
-print(produtos_df)
+horarios = horarios.split('/')
+
+horarios = [int(h) for h in horarios]
+
+print(horarios)
