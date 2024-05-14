@@ -343,10 +343,19 @@ def inserir_quantitativo_embalagens(bot, quantitativo, not_found, espera):
 
 
 def encontrar_mensagem_cadastrar_paciente(index, espera, dados_df, bot, not_found, operacoes_logs):
-    if bot.find("paciente nao cadastrado", matching=0.97, waiting_time=500):  
+    if bot.find("paciente nao cadastrado", matching=0.97, waiting_time=1000):  
         bot.enter()
         if not bot.find( "entra no cadastro paciente", matching=0.97, waiting_time=1000):
             not_found("entra no cadastro paciente")
+            if bot.find("paciente nao cadastrado", matching=0.97, waiting_time=1000):  
+                bot.enter()
+                if not bot.find( "entra no cadastro paciente", matching=0.97, waiting_time=1000):
+                    not_found("entra no cadastro paciente")
+                bot.click()
+                cadastrar_paciente(index, espera, dados_df, bot, not_found, operacoes_logs)
+                sleep(1)
+                bot.enter()
+                
         bot.click()
         cadastrar_paciente(index, espera, dados_df, bot, not_found, operacoes_logs)
         sleep(1)

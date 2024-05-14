@@ -238,7 +238,7 @@ def main(pacientes_selecionados, espera, caminho_dados, caminho_comum):
            inserir_quantitativo_embalagens(bot, quantitativo, not_found, espera)
        
        # Log do progresso
-       adicionar_log(operacoes_logs, dados_df.loc[index, 'Paciente'], "Cadastro da Prescrição")     
+       adicionar_log(operacoes_logs, dados_df.loc[index, 'Paciente'], "Cadastro da Prescrição", status = 0)     
        
     exibir_logs(operacoes_logs)
 

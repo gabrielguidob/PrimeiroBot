@@ -40,18 +40,29 @@ def atualizar_leitos(pacientes_mudaram_leito, index, espera, bot, not_found, num
     bot.enter()
     bot.enter()
     bot.enter()
-    bot.enter()
-    leito = pacientes_mudaram_leito.loc[index, 'Nr. Leito']
-    bot.kb_type(leito)
-    bot.enter()
-    bot.kb_type('ADULTO')  # Presume-se que todos os pacientes são adultos
-    bot.enter()
-    bot.enter()
+    bot.control_a()
+    bot.control_c()
+    registro = bot.get_clipboard()
+    if registro == pacientes_mudaram_leito.loc[index, 'Nr. Atend.']:
+        bot.enter()
+        leito = pacientes_mudaram_leito.loc[index, 'Nr. Leito']
+        bot.kb_type(leito)
+        bot.enter()
+        bot.kb_type('ADULTO')  # Presume-se que todos os pacientes são adultos
+        bot.enter()
+        bot.enter()
 
-    sleep(espera)  # Espera para garantir a sincronização com a interface do sistema
+        sleep(espera)  # Espera para garantir a sincronização com a interface do sistema
 
-    # Adiciona a operação de atualização de leito ao log de operações
-    adicionar_log(operacoes_logs, pacientes_mudaram_leito.loc[index, 'Paciente'], "Atualização do Leito")
+        # Adiciona a operação de atualização de leito ao log de operações
+        adicionar_log(operacoes_logs, pacientes_mudaram_leito.loc[index, 'Paciente'], "Atualização do Leito", status = 0)
 
-    print("Todos os leitos dos pacientes selecionados foram atualizados.")
+        print("Todos os leitos dos pacientes selecionados foram atualizados.")
+    else: 
+        if not bot.find("cancelar", matching=0.97, waiting_time=10000):
+            not_found("cancelar")
+        bot.click()
+            
+        adicionar_log(operacoes_logs, pacientes_mudaram_leito.loc[index, 'Paciente'], "Atualização do Leito", status = 1)
 
+        print("Todos os leitos dos pacientes selecionados foram atualizados.")

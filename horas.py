@@ -124,6 +124,7 @@ acoes = {
     21: acao_21,
     22: acao_22,
     23: acao_23,
+    24: acao_0,
     
 }
 

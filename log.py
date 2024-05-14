@@ -2,7 +2,7 @@ import tkinter as tk
 from tkinter import ttk
 
 
-def adicionar_log(operacoes_logs, nome_paciente, operacao):
+def adicionar_log(operacoes_logs, nome_paciente, operacao, status):
     """
     Atualiza o dicionário de operações com o status de uma operação específica para um paciente.
 
@@ -18,12 +18,16 @@ def adicionar_log(operacoes_logs, nome_paciente, operacao):
     Retorna:
         None
     """
+    
     # Verifica se o paciente já possui registro no dicionário de operações
     if nome_paciente not in operacoes_logs:
         # Se não, cria um novo registro inicializando todas as operações como vazias
         operacoes_logs[nome_paciente] = {"Paciente": nome_paciente, "Cadastro do Paciente": "", "Atualização do Leito": "", "Cadastro da Prescrição": ""}
     # Atualiza o status da operação específica para "Sucesso"
-    operacoes_logs[nome_paciente][operacao] = "Sucesso"
+        if status == 0:
+            operacoes_logs[nome_paciente][operacao] = "Sucesso"
+        else:
+            operacoes_logs[nome_paciente][operacao] = "Falha"
 
 def exibir_logs(operacoes_logs):
     """

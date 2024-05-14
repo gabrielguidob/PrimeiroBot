@@ -57,7 +57,7 @@ def cadastrar_paciente(index, espera, dados_df, bot, not_found, operacoes_logs):
     # Aguarda a sincronização com a interface do sistema
     sleep(espera)
     # Registra a operação de cadastro no log
-    adicionar_log(operacoes_logs, dados_df.loc[index, 'Paciente'], "Cadastro do Paciente")
+    adicionar_log(operacoes_logs, dados_df.loc[index, 'Paciente'], "Cadastro do Paciente", status = 0)
 
     print("Todos os pacientes selecionados foram cadastrados.")
 
