@@ -9,6 +9,8 @@ from time import sleep
 from leito import atualizar_leitos
 from cadastrar import cadastrar_paciente
 from log import exibir_logs, adicionar_log
+import pygetwindow as gw
+import pyautogui
 from inserir import (
     verificando_solicitacao, inserir_codigo_cliente, inserir_codigo_paciente,
     inserir_hora, inserir_unidade_de_interacao, inserir_crm_padrao, inserir_produto, inserir_via_adm, inserir_recipiente,
@@ -59,7 +61,7 @@ def preparar_cabecalho_cliente(caminho_dados):
 
 def preparar_dados(caminho_dados, caminho_comum):
 
-    caminho_comum = 'P:/LA VITA/TI/BotCity/Planilha de Configuração HOMOLOGAÇÃO 03.xlsx'
+    caminho_comum = 'Planilha de Configuração.xlsx'
     # Leitura da planilha de dados específica
     dados_df = pd.read_excel(caminho_dados, skiprows=7, dtype=str)
 
@@ -99,26 +101,27 @@ def preparar_dados(caminho_dados, caminho_comum):
 
     print(dados_df['Dieta'])
 
-    # Separa dados de "COTA EXTRA"
-    cota_extra_df = dados_df[dados_df['Paciente'] == 'COTA EXTRA'].copy()
-    outros_df = dados_df[dados_df['Paciente'] != 'COTA EXTRA'].copy()
 
-    # Filtra linhas com NaN nas colunas especificadas, exceto para "COTA EXTRA"
+    # Define colunas para verificar
     colunas_verificar = ['Nr. Atend.', 'Paciente', 'Unidade', 'Nr. Leito', 'Mudou Leito?', 'Dieta', 'Volume (ml)', 'Horários', 'Via Adm', 'Embalagem ', 'CodProduto Sistema', 'Via Adm Sistema']
     cota_extra_verificar = ['Paciente', 'Dieta', 'Volume (ml)', 'Horários', 'Via Adm', 'Embalagem ', 'CodProduto Sistema', 'Via Adm Sistema']
 
-    # Identificar linhas com problemas antes de aplicar dropna
-    linhas_com_problemas_df = outros_df[outros_df.isna().any(axis=1)]
-    linhas_cota_extra_problemas_df = cota_extra_df[cota_extra_df.isna().any(axis=1)]
+    # Separação de dados
+    cota_extra_df = dados_df[dados_df['Paciente'] == 'COTA EXTRA'].copy()
+    outros_df = dados_df[dados_df['Paciente'] != 'COTA EXTRA'].copy()
 
-    # Aplica filtros para NaN
+    # Identifica linhas com problemas nas colunas especificadas
+    linhas_com_problemas_df = outros_df[outros_df[colunas_verificar].isna().any(axis=1)]
+    linhas_cota_extra_problemas_df = cota_extra_df[cota_extra_df[cota_extra_verificar].isna().any(axis=1)]
+
+    # Aplica filtro para NaN com as colunas apropriadas
     outros_df.dropna(subset=colunas_verificar, inplace=True)
     cota_extra_df.dropna(subset=cota_extra_verificar, inplace=True)
 
-    # Combina os dados novamente
+    # Combinação de dataframes após limpeza
     dados_df = pd.concat([cota_extra_df, outros_df])
-    
 
+    # Combina os registros problemáticos para exibição ou log
     linhas_com_problemas_df = pd.concat([linhas_com_problemas_df, linhas_cota_extra_problemas_df])
     print(dados_df)
     print('Linhas com problemas:')
@@ -148,7 +151,23 @@ def encontrar_quantitativo(row, quantitativo_embalagens_df, numero_cliente):
         return filtro_final.iloc[0]['Quantitativo Sistema']  # Retorna o primeiro correspondente
     return None  # Retorna None se não houver correspondente
 
-
+#def ajustar_janelas():
+#    todas_janelas = gw.getAllWindows()
+#    janela_ie = None
+#
+#    for janela in todas_janelas:
+#        # Verifica se a janela é do Internet Explorer
+#        if "http://matriz3:57772/csp/homologacao/sneenteral.CSP - Pessoal — Microsoft​ Edge" in janela.title.lower():
+#            janela_ie = janela
+#        else:
+#            # Minimiza todas as outras janelas
+#            janela.minimize()
+#    
+#    # Se encontrou a janela do Internet Explorer, maximiza ela
+#    if janela_ie:
+#        janela_ie.maximize()
+#    else:
+#        print("Janela do Internet Explorer não encontrada.")
 
 
 def main(pacientes_selecionados, espera, caminho_dados, caminho_comum):
@@ -165,6 +184,8 @@ def main(pacientes_selecionados, espera, caminho_dados, caminho_comum):
 
     # Configuração inicial
     bot = DesktopBot()
+    #http://matriz3:57772/csp/homologacao/sneenteral.CSP - Pessoal — Microsoft​ Edge
+    #ajustar_janelas()
 
     # Variável para os logs finais
     operacoes_logs = {}

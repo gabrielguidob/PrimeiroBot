@@ -24,10 +24,10 @@ def adicionar_log(operacoes_logs, nome_paciente, operacao, status):
         # Se não, cria um novo registro inicializando todas as operações como vazias
         operacoes_logs[nome_paciente] = {"Paciente": nome_paciente, "Cadastro do Paciente": "", "Atualização do Leito": "", "Cadastro da Prescrição": ""}
     # Atualiza o status da operação específica para "Sucesso"
-        if status == 0:
-            operacoes_logs[nome_paciente][operacao] = "Sucesso"
-        else:
-            operacoes_logs[nome_paciente][operacao] = "Falha"
+    if status == 0:
+        operacoes_logs[nome_paciente][operacao] = "Sucesso"
+    else:
+        operacoes_logs[nome_paciente][operacao] = "Falha"
 
 def exibir_logs(operacoes_logs):
     """
@@ -89,7 +89,3 @@ def exibir_logs(operacoes_logs):
 
     # Mantém a janela aberta até que o usuário a feche
     log_window.mainloop()
-
-
-
-

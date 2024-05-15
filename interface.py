@@ -3,6 +3,7 @@ from tkinter import filedialog, ttk
 from tkinter import messagebox
 from bot import preparar_dados, preparar_cabecalho_cliente, main
 import sys
+import alerta_problemas
 import warnings
 warnings.filterwarnings("ignore", category=UserWarning, module="openpyxl")
 
@@ -90,28 +91,56 @@ class Application(tk.Tk):
                 self.dados_df, self.quantitativo_embalagens_df, linhas_com_problemas = preparar_dados(caminho_dados, caminho_comum)
                 self.numero_cliente, self.hora_entrega, self.data_formatada, self.nome_cliente = preparar_cabecalho_cliente(caminho_dados)
                 if not linhas_com_problemas.empty:
-                    self.mostrar_alerta_problemas(linhas_com_problemas)
+                    self.mostrar_segunda_tela()
+                    alerta_problemas.mostrar_alerta_problemas(linhas_com_problemas)
                 else:
                     self.mostrar_segunda_tela()
             except Exception as e:
                 messagebox.showerror("Erro", f"Erro ao processar a planilha: {e}")
 
     def mostrar_alerta_problemas(self, linhas_com_problemas):
-        self.limpar_tela_principal()
-        frame = ttk.Frame(self)
+        # Cria uma nova janela para o alerta
+        alerta_janela = tk.Toplevel(self)
+        alerta_janela.title("Problemas Detectados")
+        alerta_janela.geometry("600x400")
+
+        # Frame principal para conteúdo
+        frame = ttk.Frame(alerta_janela)
         frame.pack(fill='both', expand=True)
-        label = ttk.Label(frame, text="Alerta: Pacientes com dados incompletos!")
-        label.pack()
 
-        # Montar a mensagem detalhada para cada linha problemática
-        mensagem_detalhada = ""
+        # Título da tela
+        label_titulo = ttk.Label(frame, text="Alerta: Pacientes com dados incompletos!", font=('Helvetica', 14, 'bold'), foreground="#b22222")
+        label_titulo.pack(pady=(10, 10))
+
+        # Container para a lista de problemas
+        container = ttk.Frame(frame)
+        container.pack(fill='both', expand=True)
+
+        # Usar um Canvas e um Scrollbar para listagem
+        canvas = tk.Canvas(container, bd=0, highlightthickness=0)
+        canvas.pack(side=tk.LEFT, fill='both', expand=True)
+        scrollbar = ttk.Scrollbar(container, orient='vertical', command=canvas.yview)
+        scrollbar.pack(side=tk.RIGHT, fill='y')
+        canvas.configure(yscrollcommand=scrollbar.set)
+
+        # Frame interno para os detalhes dos pacientes
+        scroll_frame = ttk.Frame(canvas)
+        canvas.create_window((0,0), window=scroll_frame, anchor='nw')
+
+        scroll_frame.bind("<Configure>", lambda e: canvas.configure(scrollregion=canvas.bbox("all")))
+
+        # Adicionando os detalhes de cada linha problemática
         for idx, row in linhas_com_problemas.iterrows():
-            detalhes_linha = f"Nome: {row['Paciente']}: {row.get('Nr. Atend.', 'N/A')}\n"
-            mensagem_detalhada += detalhes_linha
+            detalhes_linha = f"Paciente: {row['Paciente']}, Atendimento: {row.get('Nr. Atend.', 'N/A')}"
+            label_detalhe = ttk.Label(scroll_frame, text=detalhes_linha, font=('Helvetica', 12))
+            label_detalhe.pack(anchor='w', padx=10, pady=5)
 
-        # Mostrar a mensagem em uma caixa de diálogo
-        messagebox.showerror("Dados Incompletos", f"Pacientes com dados incompletos foram detectados. Por favor, revise a planilha. Detalhes dos pacientes afetados:\n{mensagem_detalhada}")
-        self.mostrar_segunda_tela()
+        # Botão para fechar a janela de alerta
+        button_fechar = ttk.Button(frame, text="Fechar", command=alerta_janela.destroy)
+        button_fechar.pack(side=tk.BOTTOM, pady=10)
+
+        
+
 
 
 
