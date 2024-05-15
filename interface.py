@@ -3,6 +3,7 @@ from tkinter import filedialog, ttk
 from tkinter import messagebox
 from bot import preparar_dados, preparar_cabecalho_cliente, main
 import sys
+import pyautogui
 import alerta_problemas
 import warnings
 warnings.filterwarnings("ignore", category=UserWarning, module="openpyxl")
@@ -28,6 +29,7 @@ class Application(tk.Tk):
         self.planilha_path = tk.StringVar()  # Caminho da planilha selecionada pelo usuário
         self.dados_df = None  # DataFrame que armazenará os dados da planilha escolhida
 
+        self.verificar_resolucao()
         self.mostrar_primeira_tela()  # Exibe a primeira tela da interface
         self.protocol("WM_DELETE_WINDOW", self.on_close)  # Define o método on_close para ser chamado ao fechar a janela
 
@@ -45,6 +47,11 @@ class Application(tk.Tk):
     #    style.map("TButton", background=[('active', '#3673b3')], foreground=[('active', 'black')])
     #    style.configure("TLabel", font=('Helvetica', 12, 'bold'), background="#f0f0f0", foreground="#4a8ad8")
 
+    def verificar_resolucao(self):
+        largura, altura = pyautogui.size()
+        if largura != 1366 or altura != 768:
+            messagebox.showerror("Resolução Incompatível", "Por favor, ajuste a resolução do seu monitor para 1366x768 antes de continuar.")
+            self.destroy()  # Fecha a aplicação se a resolução não for a desejada
 
     def mostrar_primeira_tela(self):
         """

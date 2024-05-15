@@ -1,9 +1,6 @@
-import pygetwindow as gw
+import pyautogui
 
-def listar_titulos_janelas():
-    todas_janelas = gw.getAllWindows()
-    print("Títulos das janelas abertas:")
-    for janela in todas_janelas:
-        print(janela.title)
+# Obtém a resolução do monitor principal
+largura, altura = pyautogui.size()
 
-listar_titulos_janelas()
+print("Largura:", largura, "Altura:", altura)
