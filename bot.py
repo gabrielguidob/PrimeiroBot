@@ -61,7 +61,7 @@ def preparar_cabecalho_cliente(caminho_dados):
 
 def preparar_dados(caminho_dados, caminho_comum):
 
-    caminho_comum = 'Planilha de Configuração.xlsx'
+    caminho_comum = '.\Planilha de Configuração.xlsx'
     # Leitura da planilha de dados específica
     dados_df = pd.read_excel(caminho_dados, skiprows=7, dtype=str)
 
@@ -151,23 +151,23 @@ def encontrar_quantitativo(row, quantitativo_embalagens_df, numero_cliente):
         return filtro_final.iloc[0]['Quantitativo Sistema']  # Retorna o primeiro correspondente
     return None  # Retorna None se não houver correspondente
 
-#def ajustar_janelas():
-#    todas_janelas = gw.getAllWindows()
-#    janela_ie = None
-#
-#    for janela in todas_janelas:
-#        # Verifica se a janela é do Internet Explorer
-#        if "http://matriz3:57772/csp/homologacao/sneenteral.CSP - Pessoal — Microsoft​ Edge" in janela.title.lower():
-#            janela_ie = janela
-#        else:
-#            # Minimiza todas as outras janelas
-#            janela.minimize()
-#    
-#    # Se encontrou a janela do Internet Explorer, maximiza ela
-#    if janela_ie:
-#        janela_ie.maximize()
-#    else:
-#        print("Janela do Internet Explorer não encontrada.")
+def ajustar_janelas():
+    todas_janelas = gw.getAllWindows()
+    janela_ie = None
+
+    for janela in todas_janelas:
+        # Verifica se a janela é do Internet Explorer
+        if "matriz3:57772" in janela.title:
+            janela_ie = janela
+        else:
+            # Minimiza todas as outras janelas
+            janela.minimize()
+    
+    # Se encontrou a janela do Internet Explorer, maximiza ela
+    if janela_ie:
+        janela_ie.maximize()
+    else:
+        print("Janela do Internet Explorer não encontrada.")
 
 
 def main(pacientes_selecionados, espera, caminho_dados, caminho_comum):
@@ -185,7 +185,7 @@ def main(pacientes_selecionados, espera, caminho_dados, caminho_comum):
     # Configuração inicial
     bot = DesktopBot()
     #http://matriz3:57772/csp/homologacao/sneenteral.CSP - Pessoal — Microsoft​ Edge
-    #ajustar_janelas()
+    ajustar_janelas()
 
     # Variável para os logs finais
     operacoes_logs = {}
