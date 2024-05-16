@@ -45,7 +45,7 @@ def exibir_logs(operacoes_logs):
     # Criação da janela de logs
     log_window = tk.Tk()
     log_window.title("Status da Execução")
-    log_window.geometry("600x400")
+    log_window.geometry("650x400")
 
     # Configuração do estilo dos componentes da tabela
     style = ttk.Style(log_window)
@@ -64,7 +64,7 @@ def exibir_logs(operacoes_logs):
     tree.heading("Paciente", text="Paciente", anchor=tk.CENTER)
     tree.heading("Cadastro do Paciente", text="Cadastro do Paciente", anchor=tk.CENTER)
     tree.heading("Atualização do Leito", text="Atualização do Leito", anchor=tk.CENTER)
-    tree.heading("Cadastro da Prescrição", text="Cadastro da Prescrição", anchor=tk.CENTER)
+    tree.heading("Cadastro da Prescrição", text="Lançamento da Prescrição", anchor=tk.CENTER)
     # Ajuste da largura das colunas
     tree.column("Paciente", anchor=tk.CENTER, width=150)
     tree.column("Cadastro do Paciente", anchor=tk.CENTER, width=100)
@@ -89,3 +89,11 @@ def exibir_logs(operacoes_logs):
 
     # Mantém a janela aberta até que o usuário a feche
     log_window.mainloop()
+
+
+operacoes_logs = {
+    "John Doe": {"Cadastro do Paciente": "Sucesso", "Atualização do Leito": "Falha", "Cadastro da Prescrição": "Sucesso"},
+    "Jane Smith": {"Cadastro do Paciente": "Falha", "Atualização do Leito": "Sucesso", "Cadastro da Prescrição": "Falha"}
+}
+
+exibir_logs(operacoes_logs)

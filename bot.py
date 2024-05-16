@@ -123,11 +123,27 @@ def preparar_dados(caminho_dados, caminho_comum):
 
     # Combina os registros problemáticos para exibição ou log
     linhas_com_problemas_df = pd.concat([linhas_com_problemas_df, linhas_cota_extra_problemas_df])
-    print(dados_df)
     print('Linhas com problemas:')
     print(linhas_com_problemas_df)
 
+    dados_df = marcar_duplicatas(dados_df, 'Paciente')
+    print(dados_df[['Paciente', 'Volume (ml)', 'Nr. Leito', 'Mudou Leito?', 'Dieta', 'Horários', 'Via Adm']])
+
+
+
     return dados_df, quantitativo_embalagens_df, linhas_com_problemas_df
+
+def marcar_duplicatas(df, coluna):
+    # Inicializa a nova coluna com False
+    df['Segunda_Ocorrencia'] = False
+    
+    # Verifica onde as duplicatas começam, exceto a primeira ocorrência
+    mask = df.duplicated(coluna, keep='first')
+    
+    # Marca as duplicatas subsequentes com True
+    df.loc[mask, 'Segunda_Ocorrencia'] = True
+
+    return df
 
 def encontrar_quantitativo(row, quantitativo_embalagens_df, numero_cliente):
     embalagem = row['Embalagem '].strip().upper()  # Certifique-se de remover espaços extras
@@ -153,21 +169,22 @@ def encontrar_quantitativo(row, quantitativo_embalagens_df, numero_cliente):
 
 def ajustar_janelas():
     todas_janelas = gw.getAllWindows()
-    janela_ie = None
+    #janela_ie = None
 
     for janela in todas_janelas:
         # Verifica se a janela é do Internet Explorer
         if "matriz3:57772" in janela.title:
-            janela_ie = janela
-        else:
-            # Minimiza todas as outras janelas
-            janela.minimize()
-    
-    # Se encontrou a janela do Internet Explorer, maximiza ela
-    if janela_ie:
-        janela_ie.maximize()
-    else:
-        print("Janela do Internet Explorer não encontrada.")
+            #janela_ie = janela
+            janela.maximize()
+    #    else:
+    #        # Minimiza todas as outras janelas
+    #        janela.minimize()
+    #
+    ## Se encontrou a janela do Internet Explorer, maximiza ela
+    #if janela_ie:
+    #    janela_ie.maximize()
+    #else:
+    #    print("Janela do Internet Explorer não encontrada.")
 
 
 def main(pacientes_selecionados, espera, caminho_dados, caminho_comum):
@@ -202,6 +219,8 @@ def main(pacientes_selecionados, espera, caminho_dados, caminho_comum):
     #Criando Df para os que precisam alterar o leito
     pacientes_mudaram_leito = dados_df[dados_df['Mudou Leito?'] == 'Sim']
     print(pacientes_mudaram_leito['Mudou Leito?'])
+
+    primeira_iteracao = True
     for index, row in pacientes_mudaram_leito.iterrows():
         # Aplicando a função para encontrar o 'Quantitativo Sistema' correspondente para cada linha
         # Assegure-se de que 'quantitativo_embalagens_df' esteja definido e disponível neste escopo
@@ -219,11 +238,10 @@ def main(pacientes_selecionados, espera, caminho_dados, caminho_comum):
        # Puxando a relação Quantitativo Sistema
        quantitativo = dados_df.loc[index, 'Quantitativo Sistema']
        
-       print(f"Paciente: {row['Paciente']}, Nr. Atend.: {row['Nr. Atend.']}, Quantitativo Sistema: {quantitativo}, Via Adm Sistema: {row['Via Adm Sistema']}, CodProduto Sistema: {row['CodProduto Sistema']}")
+       print(f"Paciente: {row['Paciente']}, Nr. Atend.: {row['Nr. Atend.']}, Quantitativo Sistema: {quantitativo}, Via Adm Sistema: {row['Via Adm Sistema']}, CodProduto Sistema: {row['CodProduto Sistema']}, Volume: {row['Volume (ml)']}")
 
        # Ignora a primeira linha, para começar no segundo paciente
-       if (index == 0):
-
+       if primeira_iteracao:
            inserir_codigo_cliente(bot, numero_cliente, not_found, espera)
            
            inserir_codigo_paciente(bot, dados_df, index, not_found, espera, numero_cliente)
@@ -232,31 +250,32 @@ def main(pacientes_selecionados, espera, caminho_dados, caminho_comum):
            bot.enter()
            pop_up_erro(bot, not_found, espera, hora_entrega)                       
            inserir_horario_entrega(bot, not_found, espera, hora_entrega)     
-           inserir_hora(bot, espera, not_found, index, hora_entrega)
+           inserir_hora(bot, espera, not_found, index, hora_entrega, primeira_iteracao)
            pop_up_erro(bot, not_found, espera, hora_entrega)           
            inserir_unidade_de_interacao(bot, dados_df, index, espera, not_found)           
            inserir_crm_padrao(bot, espera, not_found)
            inserir_produto(bot, dados_df, index, espera)
            inserir_via_adm(bot, dados_df, index, espera)
            inserir_recipiente(bot, dados_df, index, espera)
-           inserir_volume(bot, dados_df, index, espera)
+           inserir_volume(bot, dados_df, index, espera, not_found)
            inserir_horarios(bot, dados_df, index, not_found, espera)
-           inserir_quantitativo_embalagens(bot, quantitativo, not_found, espera)
+           inserir_quantitativo_embalagens(bot, quantitativo, not_found, espera, dados_df, index)
+           primeira_iteracao = False  # Atualiza a variável para garantir que o bloco não seja mais executado
 
        else:   
            
            inserir_codigo_paciente(bot, dados_df, index, not_found, espera, numero_cliente)
            encontrar_mensagem_cadastrar_paciente(index, espera, dados_df, bot, not_found, operacoes_logs)
            pop_up_erro(bot, not_found, espera, hora_entrega)
-           inserir_hora(bot, espera, not_found, index, hora_entrega)
+           inserir_hora(bot, espera, not_found, index, hora_entrega, primeira_iteracao)
            inserir_unidade_de_interacao(bot, dados_df, index, espera, not_found)
            inserir_crm_padrao(bot, espera, not_found)
            inserir_produto(bot, dados_df, index, espera)
            inserir_via_adm(bot, dados_df, index, espera)
            inserir_recipiente(bot, dados_df, index, espera)
-           inserir_volume(bot, dados_df, index, espera)
+           inserir_volume(bot, dados_df, index, espera, not_found)
            inserir_horarios(bot, dados_df, index, not_found, espera)
-           inserir_quantitativo_embalagens(bot, quantitativo, not_found, espera)
+           inserir_quantitativo_embalagens(bot, quantitativo, not_found, espera, dados_df, index)
        
        # Log do progresso
        adicionar_log(operacoes_logs, dados_df.loc[index, 'Paciente'], "Cadastro da Prescrição", status = 0)     

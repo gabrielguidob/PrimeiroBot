@@ -130,7 +130,7 @@ def inserir_horario_entrega(bot, not_found, espera, hora_entrega):
     sleep(espera)
     bot.kb_type(hora_entrega)
             
-def inserir_hora(bot, espera, not_found, index, hora_entrega):
+def inserir_hora(bot, espera, not_found, index, hora_entrega, primeira_iteracao):
     """
     Insere a hora atual na interface do usuário.
 
@@ -148,7 +148,7 @@ def inserir_hora(bot, espera, not_found, index, hora_entrega):
 
     sleep(espera)
 
-    if index == 0:
+    if primeira_iteracao:
         # Inserindo o horário uma vez 
         bot.kb_type(hora_formatada)
         print(f'Hora formatada = {hora_formatada}')
@@ -216,6 +216,7 @@ def inserir_crm_padrao(bot, espera, not_found):
     bot.enter()
     sleep(espera)
     bot.enter()
+    sleep(0.3 + espera)
 
 # Repetição de padrões de documentação e implementação para inserir_produto e outras funções.
 
@@ -263,7 +264,7 @@ def inserir_recipiente(bot, dados_df, index, espera):
     sleep(espera)
     bot.enter()
 
-def inserir_volume(bot, dados_df, index, espera):
+def inserir_volume(bot, dados_df, index, espera, not_found):
     """
     Insere o volume do medicamento na interface do usuário.
 
@@ -271,11 +272,32 @@ def inserir_volume(bot, dados_df, index, espera):
     :param dados_df: DataFrame contendo os dados completos, incluindo o volume do medicamento.
     :param index: Índice da linha atual no DataFrame.
     """
-    volume = dados_df.loc[index, 'Volume (ml)']
-    sleep(espera)
-    bot.kb_type(volume)
-    sleep(espera)
-    bot.enter()
+    if dados_df.loc[index, 'Segunda_Ocorrencia']:
+        #if not bot.find("cancelar", matching=0.97, waiting_time=10000):
+        #    not_found("cancelar")
+        #bot.click()
+        #inserir_produto(bot, dados_df, index, espera)
+        #inserir_via_adm(bot, dados_df, index, espera)
+        #inserir_recipiente(bot, dados_df, index, espera)
+        if not bot.find("ml gr", matching=0.97, waiting_time=10000):
+            not_found("ml gr")
+        bot.click_relative(7, 18)
+        
+        volume = dados_df.loc[index, 'Volume (ml)']
+        sleep(espera)
+        bot.control_a()
+        bot.backspace()
+        bot.kb_type(volume)
+        sleep(espera)
+        bot.enter()
+        sleep(espera + 0.2)
+    else: 
+        volume = dados_df.loc[index, 'Volume (ml)']
+        sleep(espera)
+        bot.kb_type(volume)
+        sleep(espera)
+        bot.enter()
+        sleep(espera + 0.2)        
 
 def inserir_horarios(bot, dados_df, index, not_found, espera):
     """
@@ -287,13 +309,14 @@ def inserir_horarios(bot, dados_df, index, not_found, espera):
     :param not_found: Função a ser chamada caso o elemento não seja encontrado.
     """
     sleep(espera)
+    bot.kb_type("24")
+    sleep(espera)
+    bot.enter()
+    sleep(espera + 0.2)
     bot.kb_type("0")
     sleep(espera)
     bot.enter()
-    sleep(espera)
-    bot.kb_type("0")
-    sleep(espera)
-    bot.enter()
+    sleep(espera + 0.2)
 
     if not bot.find( "hora 0", matching=0.97, waiting_time=10000):
         not_found("hora 0")
@@ -316,7 +339,7 @@ def padronizar_horarios(horario):
     return '/'.join(partes_limpias)    
 
 
-def inserir_quantitativo_embalagens(bot, quantitativo, not_found, espera):
+def inserir_quantitativo_embalagens(bot, quantitativo, not_found, espera, dados_df, index):
     """
     Insere o quantitativo de embalagens na interface do usuário.
 
@@ -324,21 +347,37 @@ def inserir_quantitativo_embalagens(bot, quantitativo, not_found, espera):
     :param quantitativo: Valor do 'Quantitativo Sistema' a ser inserido.
     :param not_found: Função a ser chamada caso o elemento não seja encontrado.
     """
-    if not bot.find( "Quantitativo de embalagens", matching=0.97, waiting_time=10000):
-        not_found("Quantitativo de embalagens")
-    bot.click_relative(12, 46)
-    sleep(espera)
-    if not bot.find( "Escolha uma opcao", matching=0.97, waiting_time=10000):
-        not_found("Escolha uma opcao")
-    bot.click_relative(242, 7)
-    sleep(espera)  # Segundo clique necessário neste tipo de campo de informação
-    bot.click()
-    sleep(espera)
-    bot.kb_type(quantitativo)
-    sleep(espera)
-    bot.enter()
-    sleep(espera)
-    bot.enter()
+
+    if dados_df.loc[index, 'Segunda_Ocorrencia']:
+        if not bot.find("Quantitativo 2", matching=0.97, waiting_time=10000):
+            not_found("Quantitativo 2")
+        bot.click_relative(40, 39)
+        
+        sleep(espera)  # Segundo clique necessário neste tipo de campo de informação
+        bot.click()
+        sleep(espera)
+        bot.kb_type(quantitativo)
+        sleep(espera)
+        bot.enter()
+        sleep(espera)
+        bot.enter()
+
+    else:
+        if not bot.find( "Quantitativo de embalagens", matching=0.97, waiting_time=10000):
+            not_found("Quantitativo de embalagens")
+        bot.click_relative(12, 46)
+        sleep(espera)
+        if not bot.find( "Escolha uma opcao", matching=0.97, waiting_time=10000):
+            not_found("Escolha uma opcao")
+        bot.click_relative(242, 7)
+        sleep(espera)  # Segundo clique necessário neste tipo de campo de informação
+        bot.click()
+        sleep(espera)
+        bot.kb_type(quantitativo)
+        sleep(espera)
+        bot.enter()
+        sleep(espera)
+        bot.enter()
 
 
 
