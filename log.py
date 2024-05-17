@@ -91,9 +91,9 @@ def exibir_logs(operacoes_logs):
     log_window.mainloop()
 
 
-operacoes_logs = {
-    "John Doe": {"Cadastro do Paciente": "Sucesso", "Atualização do Leito": "Falha", "Cadastro da Prescrição": "Sucesso"},
-    "Jane Smith": {"Cadastro do Paciente": "Falha", "Atualização do Leito": "Sucesso", "Cadastro da Prescrição": "Falha"}
-}
-
-exibir_logs(operacoes_logs)
+#operacoes_logs = {
+#    "John Doe": {"Cadastro do Paciente": "Sucesso", "Atualização do Leito": "Falha", "Cadastro da Prescrição": "Sucesso"},
+#    "Jane Smith": {"Cadastro do Paciente": "Falha", "Atualização do Leito": "Sucesso", "Cadastro da Prescrição": "Falha"}
+#}
+#
+#exibir_logs(operacoes_logs)

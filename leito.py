@@ -37,6 +37,8 @@ def atualizar_leitos(pacientes_mudaram_leito, index, espera, bot, not_found, num
     
     # Sequência de comandos para inserir informações no sistema e atualizar o leito
     bot.enter()
+    bot.control_a()
+    bot.kb_type(pacientes_mudaram_leito.loc[index, 'Paciente'])
     bot.enter()
     bot.enter()
     bot.enter()

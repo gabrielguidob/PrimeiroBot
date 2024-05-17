@@ -130,7 +130,7 @@ def inserir_horario_entrega(bot, not_found, espera, hora_entrega):
     sleep(espera)
     bot.kb_type(hora_entrega)
             
-def inserir_hora(bot, espera, not_found, index, hora_entrega, primeira_iteracao):
+def inserir_hora(bot, espera, not_found, index, hora_entrega, primeira_iteracao, dados_df):
     """
     Insere a hora atual na interface do usuário.
 
@@ -148,7 +148,7 @@ def inserir_hora(bot, espera, not_found, index, hora_entrega, primeira_iteracao)
 
     sleep(espera)
 
-    if primeira_iteracao:
+    if primeira_iteracao or dados_df.loc[index, 'Segunda_Ocorrencia']:
         # Inserindo o horário uma vez 
         bot.kb_type(hora_formatada)
         print(f'Hora formatada = {hora_formatada}')
@@ -348,36 +348,21 @@ def inserir_quantitativo_embalagens(bot, quantitativo, not_found, espera, dados_
     :param not_found: Função a ser chamada caso o elemento não seja encontrado.
     """
 
-    if dados_df.loc[index, 'Segunda_Ocorrencia']:
-        if not bot.find("Quantitativo 2", matching=0.97, waiting_time=10000):
-            not_found("Quantitativo 2")
-        bot.click_relative(40, 39)
-        
-        sleep(espera)  # Segundo clique necessário neste tipo de campo de informação
-        bot.click()
-        sleep(espera)
-        bot.kb_type(quantitativo)
-        sleep(espera)
-        bot.enter()
-        sleep(espera)
-        bot.enter()
-
-    else:
-        if not bot.find( "Quantitativo de embalagens", matching=0.97, waiting_time=10000):
-            not_found("Quantitativo de embalagens")
-        bot.click_relative(12, 46)
-        sleep(espera)
-        if not bot.find( "Escolha uma opcao", matching=0.97, waiting_time=10000):
-            not_found("Escolha uma opcao")
-        bot.click_relative(242, 7)
-        sleep(espera)  # Segundo clique necessário neste tipo de campo de informação
-        bot.click()
-        sleep(espera)
-        bot.kb_type(quantitativo)
-        sleep(espera)
-        bot.enter()
-        sleep(espera)
-        bot.enter()
+    if not bot.find( "Quantitativo de embalagens", matching=0.97, waiting_time=10000):
+        not_found("Quantitativo de embalagens")
+    bot.click_relative(12, 46)
+    sleep(espera)
+    if not bot.find( "Escolha uma opcao", matching=0.97, waiting_time=10000):
+        not_found("Escolha uma opcao")
+    bot.click_relative(242, 7)
+    sleep(espera)  # Segundo clique necessário neste tipo de campo de informação
+    bot.click()
+    sleep(espera)
+    bot.kb_type(quantitativo)
+    sleep(espera)
+    bot.enter()
+    sleep(espera)
+    bot.enter()
 
 
 

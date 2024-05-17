@@ -126,7 +126,7 @@ def preparar_dados(caminho_dados, caminho_comum):
     print('Linhas com problemas:')
     print(linhas_com_problemas_df)
 
-    dados_df = marcar_duplicatas(dados_df, 'Paciente')
+    dados_df = marcar_duplicatas(dados_df, ['Paciente', 'CodProduto Sistema', 'Via Adm Sistema', 'Embalagem '])
     print(dados_df[['Paciente', 'Volume (ml)', 'Nr. Leito', 'Mudou Leito?', 'Dieta', 'Horários', 'Via Adm']])
 
 
@@ -142,6 +142,9 @@ def marcar_duplicatas(df, coluna):
     
     # Marca as duplicatas subsequentes com True
     df.loc[mask, 'Segunda_Ocorrencia'] = True
+    
+     # Reordena o DataFrame para colocar as duplicatas ao final
+    df = df.sort_values(by='Segunda_Ocorrencia', ascending=True)
 
     return df
 
@@ -241,7 +244,7 @@ def main(pacientes_selecionados, espera, caminho_dados, caminho_comum):
        print(f"Paciente: {row['Paciente']}, Nr. Atend.: {row['Nr. Atend.']}, Quantitativo Sistema: {quantitativo}, Via Adm Sistema: {row['Via Adm Sistema']}, CodProduto Sistema: {row['CodProduto Sistema']}, Volume: {row['Volume (ml)']}")
 
        # Ignora a primeira linha, para começar no segundo paciente
-       if primeira_iteracao:
+       if primeira_iteracao and not dados_df.loc[index, 'Segunda_Ocorrencia']:
            inserir_codigo_cliente(bot, numero_cliente, not_found, espera)
            
            inserir_codigo_paciente(bot, dados_df, index, not_found, espera, numero_cliente)
@@ -250,7 +253,7 @@ def main(pacientes_selecionados, espera, caminho_dados, caminho_comum):
            bot.enter()
            pop_up_erro(bot, not_found, espera, hora_entrega)                       
            inserir_horario_entrega(bot, not_found, espera, hora_entrega)     
-           inserir_hora(bot, espera, not_found, index, hora_entrega, primeira_iteracao)
+           inserir_hora(bot, espera, not_found, index, hora_entrega, primeira_iteracao, dados_df)
            pop_up_erro(bot, not_found, espera, hora_entrega)           
            inserir_unidade_de_interacao(bot, dados_df, index, espera, not_found)           
            inserir_crm_padrao(bot, espera, not_found)
@@ -262,12 +265,12 @@ def main(pacientes_selecionados, espera, caminho_dados, caminho_comum):
            inserir_quantitativo_embalagens(bot, quantitativo, not_found, espera, dados_df, index)
            primeira_iteracao = False  # Atualiza a variável para garantir que o bloco não seja mais executado
 
-       else:   
+       elif not dados_df.loc[index, 'Segunda_Ocorrencia']:
            
            inserir_codigo_paciente(bot, dados_df, index, not_found, espera, numero_cliente)
            encontrar_mensagem_cadastrar_paciente(index, espera, dados_df, bot, not_found, operacoes_logs)
            pop_up_erro(bot, not_found, espera, hora_entrega)
-           inserir_hora(bot, espera, not_found, index, hora_entrega, primeira_iteracao)
+           inserir_hora(bot, espera, not_found, index, hora_entrega, primeira_iteracao, dados_df)
            inserir_unidade_de_interacao(bot, dados_df, index, espera, not_found)
            inserir_crm_padrao(bot, espera, not_found)
            inserir_produto(bot, dados_df, index, espera)
@@ -277,6 +280,30 @@ def main(pacientes_selecionados, espera, caminho_dados, caminho_comum):
            inserir_horarios(bot, dados_df, index, not_found, espera)
            inserir_quantitativo_embalagens(bot, quantitativo, not_found, espera, dados_df, index)
        
+       else:
+           print(f"Paciente: {row['Paciente']}, Segunda Ocorrencia: {row['Segunda_Ocorrencia']}")
+           sleep(1)
+           verificando_solicitacao(bot, not_found)
+           sleep(1)
+           inserir_codigo_cliente(bot, numero_cliente, not_found, espera)         
+           inserir_codigo_paciente(bot, dados_df, index, not_found, espera, numero_cliente)
+           sleep(1)
+           bot.enter()
+           pop_up_erro(bot, not_found, espera, hora_entrega)                       
+           inserir_horario_entrega(bot, not_found, espera, hora_entrega)     
+           inserir_hora(bot, espera, not_found, index, hora_entrega, primeira_iteracao, dados_df)
+           pop_up_erro(bot, not_found, espera, hora_entrega)           
+           inserir_unidade_de_interacao(bot, dados_df, index, espera, not_found)           
+           inserir_crm_padrao(bot, espera, not_found)
+           inserir_produto(bot, dados_df, index, espera)
+           inserir_via_adm(bot, dados_df, index, espera)
+           inserir_recipiente(bot, dados_df, index, espera)
+           inserir_volume(bot, dados_df, index, espera, not_found)
+           inserir_horarios(bot, dados_df, index, not_found, espera)
+           inserir_quantitativo_embalagens(bot, quantitativo, not_found, espera, dados_df, index)
+           
+
+
        # Log do progresso
        adicionar_log(operacoes_logs, dados_df.loc[index, 'Paciente'], "Cadastro da Prescrição", status = 0)     
        
