@@ -27,10 +27,10 @@ def atualizar_leitos(pacientes_mudaram_leito, index, espera, bot, not_found, num
     #    return
     
 
-    abrir_cadastro_paciente(bot, not_found)
+    abrir_cadastro_paciente(bot, not_found, espera)
     
 
-    inserir_codigo_cliente_cadastro(bot, not_found, numero_cliente)
+    inserir_codigo_cliente_cadastro(bot, not_found, numero_cliente, espera)
     print(pacientes_mudaram_leito)
     #nome_paciente = str(pacientes_mudaram_leito['Paciente'])
     inserir_codigo_paciente_leito(bot, pacientes_mudaram_leito.loc[index, 'Paciente'], espera, not_found)
