@@ -350,8 +350,6 @@ class Application(tk.Tk):
         # Destrua a interface atual
         self.destroy()
 
-        # Reinicia a aplicação 
-        restart_app()
 
 def restart_app():
     """

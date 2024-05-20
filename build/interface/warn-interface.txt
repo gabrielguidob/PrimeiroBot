@@ -21,7 +21,7 @@ missing module named _posixsubprocess - imported by subprocess (conditional), mu
 missing module named fcntl - imported by subprocess (optional), psutil._compat (delayed, optional), keyboard._nixcommon (delayed), Xlib.support.unix_connect (delayed)
 missing module named typing_extensions - imported by PIL._typing (conditional, optional), markupsafe (conditional), pandas._typing (conditional), jinja2.bccache (conditional), jinja2.utils (conditional), jinja2.runtime (conditional), jinja2.lexer (conditional), jinja2.nodes (conditional), jinja2.visitor (conditional), jinja2.compiler (conditional), jinja2.filters (conditional), jinja2.defaults (conditional), jinja2.parser (conditional), jinja2.environment (conditional), jinja2.ext (conditional), pkg_resources._vendor.packaging.metadata (conditional, optional), packaging.metadata (conditional, optional)
 missing module named urllib.urlencode - imported by urllib (conditional), requests_toolbelt._compat (conditional)
-missing module named posix - imported by os (conditional, optional), posixpath (optional), shutil (conditional), importlib._bootstrap_external (conditional)
+missing module named posix - imported by posixpath (optional), shutil (conditional), importlib._bootstrap_external (conditional), os (conditional, optional)
 missing module named resource - imported by posix (top-level)
 missing module named _manylinux - imported by pkg_resources._vendor.packaging._manylinux (delayed, optional), packaging._manylinux (delayed, optional)
 missing module named ctypes._CData - imported by ctypes (conditional), comtypes (conditional)
