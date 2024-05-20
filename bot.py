@@ -15,11 +15,23 @@ from inserir import (
     verificando_solicitacao, inserir_codigo_cliente, inserir_codigo_paciente,
     inserir_hora, inserir_unidade_de_interacao, inserir_crm_padrao, inserir_produto, inserir_via_adm, inserir_recipiente,
     inserir_volume, inserir_horarios, inserir_quantitativo_embalagens, pop_up_erro, inserir_horario_entrega, encontrar_mensagem_cadastrar_paciente)
+import unicodedata
 
 
 # para baixar o executavel pyinstaller --noconsole --onefile --add-data "resources;resources" interface.py
 
 
+def normalize_spaces(text):
+    if pd.isna(text):
+        return text  # Retorna o valor original se for NaN
+    return ''.join(' ' if unicodedata.category(char) == 'Zs' else char for char in text)
+
+def normalize_dataframe(df):
+    # Aplica a normalização de espaços a todas as colunas do tipo string
+    for col in df.columns:
+        if df[col].dtype == 'O':  # Verifica se o tipo da coluna é 'object', geralmente usado para strings
+            df[col] = df[col].apply(normalize_spaces)
+    return df
 # Desabilita erros se não estiver conectado ao Maestro
 BotMaestroSDK.RAISE_NOT_CONNECTED = False
 
@@ -64,6 +76,7 @@ def preparar_dados(caminho_dados, caminho_comum):
     caminho_comum = '.\Planilha de Configuração.xlsx'
     # Leitura da planilha de dados específica
     dados_df = pd.read_excel(caminho_dados, skiprows=7, dtype=str)
+    dados_df = normalize_dataframe(dados_df)
 
     # Filtra as linhas onde 'Nr. Atend.' e 'Paciente' são ambos NaN (nulos) ou onde 'Dieta' é 'DIETA ZERO'
     dados_df = dados_df.dropna(subset=['Nr. Atend.', 'Paciente'], how='all')  # Remove se ambas as colunas forem NaN
@@ -77,6 +90,9 @@ def preparar_dados(caminho_dados, caminho_comum):
     # Leitura das planilhas com caminho comum
     produtos_df = pd.read_excel(caminho_comum, sheet_name='Produto', dtype=str)
     via_adm_df = pd.read_excel(caminho_comum, sheet_name='Via Adm')
+
+    produtos_df = normalize_dataframe(produtos_df)
+    via_adm_df = normalize_dataframe(via_adm_df)
 
     produtos_df['Produto Prescrição'] = produtos_df['Produto Prescrição'].str.strip().str.lower()
     dados_df['Dieta'] = dados_df['Dieta'].str.strip().str.lower()
@@ -98,6 +114,8 @@ def preparar_dados(caminho_dados, caminho_comum):
 
     # Criando a quantitativo_embalagens_df
     quantitativo_embalagens_df = pd.read_excel(caminho_comum, sheet_name='Quantitativo Embalagens', dtype=str)
+
+    quantitativo_embalagens_df = normalize_dataframe(quantitativo_embalagens_df)
 
     print(dados_df['Dieta'])
 
@@ -126,8 +144,8 @@ def preparar_dados(caminho_dados, caminho_comum):
     print('Linhas com problemas:')
     print(linhas_com_problemas_df)
 
-    dados_df = marcar_duplicatas(dados_df, ['Paciente', 'CodProduto Sistema', 'Via Adm Sistema', 'Embalagem '])
-    print(dados_df[['Paciente', 'Volume (ml)', 'Nr. Leito', 'Mudou Leito?', 'Dieta', 'Horários', 'Via Adm']])
+    # Normalização dos DataFrames
+    
 
 
 
@@ -216,6 +234,9 @@ def main(pacientes_selecionados, espera, caminho_dados, caminho_comum):
     # Obtendo o número do cliente da planilha
     numero_cliente, hora_entrega, data_formatada, nome_cliente  = preparar_cabecalho_cliente(caminho_dados)
 
+    dados_df = marcar_duplicatas(dados_df, ['Paciente', 'CodProduto Sistema', 'Via Adm Sistema', 'Embalagem '])
+    print(dados_df[['Paciente', 'Volume (ml)', 'Nr. Leito', 'Mudou Leito?', 'Dieta', 'Horários', 'Via Adm']])
+    
     # Filtrar o DataFrame para incluir apenas as linhas com pacientes selecionados
     dados_df = dados_df[dados_df['Paciente'].isin(pacientes_selecionados)]
 
@@ -308,6 +329,7 @@ def main(pacientes_selecionados, espera, caminho_dados, caminho_comum):
        adicionar_log(operacoes_logs, dados_df.loc[index, 'Paciente'], "Cadastro da Prescrição", status = 0)     
        
     exibir_logs(operacoes_logs)
+
 
 
 if __name__ == '__main__':

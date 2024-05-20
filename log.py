@@ -2,6 +2,7 @@ import tkinter as tk
 from tkinter import ttk
 
 
+
 def adicionar_log(operacoes_logs, nome_paciente, operacao, status):
     """
     Atualiza o dicionário de operações com o status de uma operação específica para um paciente.
@@ -43,7 +44,7 @@ def exibir_logs(operacoes_logs):
         None
     """
     # Criação da janela de logs
-    log_window = tk.Tk()
+    log_window = tk.Toplevel()
     log_window.title("Status da Execução")
     log_window.geometry("650x400")
 

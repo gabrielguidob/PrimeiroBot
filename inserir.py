@@ -272,32 +272,13 @@ def inserir_volume(bot, dados_df, index, espera, not_found):
     :param dados_df: DataFrame contendo os dados completos, incluindo o volume do medicamento.
     :param index: Índice da linha atual no DataFrame.
     """
-    if dados_df.loc[index, 'Segunda_Ocorrencia']:
-        #if not bot.find("cancelar", matching=0.97, waiting_time=10000):
-        #    not_found("cancelar")
-        #bot.click()
-        #inserir_produto(bot, dados_df, index, espera)
-        #inserir_via_adm(bot, dados_df, index, espera)
-        #inserir_recipiente(bot, dados_df, index, espera)
-        if not bot.find("ml gr", matching=0.97, waiting_time=10000):
-            not_found("ml gr")
-        bot.click_relative(7, 18)
-        
-        volume = dados_df.loc[index, 'Volume (ml)']
-        sleep(espera)
-        bot.control_a()
-        bot.backspace()
-        bot.kb_type(volume)
-        sleep(espera)
-        bot.enter()
-        sleep(espera + 0.2)
-    else: 
-        volume = dados_df.loc[index, 'Volume (ml)']
-        sleep(espera)
-        bot.kb_type(volume)
-        sleep(espera)
-        bot.enter()
-        sleep(espera + 0.2)        
+    
+    volume = dados_df.loc[index, 'Volume (ml)']
+    sleep(espera)
+    bot.kb_type(volume)
+    sleep(espera)
+    bot.enter()
+    #sleep(espera + 0.2)        
 
 def inserir_horarios(bot, dados_df, index, not_found, espera):
     """

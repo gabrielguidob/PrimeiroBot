@@ -5,6 +5,8 @@ from bot import preparar_dados, preparar_cabecalho_cliente, main
 import sys
 import pyautogui
 import alerta_problemas
+import threading
+
 import warnings
 warnings.filterwarnings("ignore", category=UserWarning, module="openpyxl")
 
@@ -152,10 +154,21 @@ class Application(tk.Tk):
 
 
     def toggle_all_checkboxes(self):
-        all_selected = all(var.get() for var in self.pacientes_vars.values())
+        # Determina se todos os checkboxes estão selecionados
+        all_selected = True
+        for var_list in self.pacientes_vars.values():
+            if not all(var.get() for var in var_list):
+                all_selected = False
+                break
+
+        # O novo valor é o oposto do valor determinado: se todos estavam selecionados, desmarca todos, e vice-versa
         new_value = not all_selected
-        for var in self.pacientes_vars.values():
-            var.set(new_value)
+
+        # Configura todos os checkboxes para o novo valor
+        for var_list in self.pacientes_vars.values():
+            for var in var_list:
+                var.set(new_value)
+
 
     def mostrar_segunda_tela(self):
         self.limpar_tela_principal()
@@ -191,7 +204,10 @@ class Application(tk.Tk):
                 var = tk.BooleanVar(value=True)  # Checkboxes marcados por padrão
                 chk = ttk.Checkbutton(scroll_frame, text=f"{row['Paciente']} ({row['Nr. Atend.']})", variable=var, style="TCheckbutton")
                 chk.pack(anchor='w')
-                self.pacientes_vars[row['Paciente']] = var
+                # Armazena a variável de cada checkbox em uma lista associada ao nome do paciente
+                if row['Paciente'] not in self.pacientes_vars:
+                    self.pacientes_vars[row['Paciente']] = []
+                self.pacientes_vars[row['Paciente']].append(var)
 
         # Botões de navegação, colocados de forma que sempre fiquem visíveis
         button_frame = ttk.Frame(self)
@@ -296,9 +312,15 @@ class Application(tk.Tk):
 
     def coletar_pacientes_selecionados(self):
         """
-        Coleta os pacientes selecionados a partir das variáveis associadas aos checkboxes.
+        Coleta os pacientes selecionados a partir das listas de variáveis associadas aos checkboxes.
         """
-        return [nome for nome, var in self.pacientes_vars.items() if var.get()]
+        pacientes_selecionados = []
+        for nome_paciente, var_list in self.pacientes_vars.items():
+            # Adiciona o nome do paciente se ao menos um checkbox associado a ele estiver selecionado
+            if any(var.get() for var in var_list):
+                pacientes_selecionados.append(nome_paciente)
+        return pacientes_selecionados
+
 
     
     def executar_bot(self):
@@ -309,7 +331,7 @@ class Application(tk.Tk):
         """
         # Coleta os pacientes selecionados
         pacientes_selecionados = self.coletar_pacientes_selecionados()
-        
+
         # Coleta a velocidade escolhida
         espera = float(self.velocidade.get())
 
@@ -317,24 +339,29 @@ class Application(tk.Tk):
         caminho_dados = self.planilha_path.get()
         caminho_comum = "P:/LA VITA/TI/BotCity/Planilha de Configuração HOMOLOGAÇÃO 03.xlsx"
 
-        # Fecha a interface gráfica
-        self.destroy()
 
-        # Chama a função main do bot.py com todos os parâmetros necessários
+        # Minimiza a interface gráfica para liberar a tela para a automação
+        self.iconify()
+
+        # Executa a função main e após sua conclusão, reinicia a aplicação
         main(pacientes_selecionados, espera, caminho_dados, caminho_comum)
 
-        
-        
-    
+        self.deiconify()
+        # Destrua a interface atual
+        self.destroy()
 
+        # Reinicia a aplicação 
+        restart_app()
 
-
-        
-
+def restart_app():
+    """
+    Reinicia a aplicação criando uma nova instância da classe Application.
+    """
+    app = Application()
+    app.mainloop()
 
 if __name__ == "__main__":
-    app = Application()
-    app.mainloop()  # Executa a interface gráfica e espera até que ela seja fechada
+    restart_app()
 
 
 
