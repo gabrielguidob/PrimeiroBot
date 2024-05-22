@@ -124,7 +124,7 @@ def preparar_dados(caminho_dados, caminho_comum):
 
 
     # Define colunas para verificar
-    colunas_verificar = ['Nr. Atend.', 'Paciente', 'Unidade', 'Nr. Leito', 'Dieta', 'Volume (ml)', 'Horários', 'Via Adm', 'Embalagem ', 'CodProduto Sistema', 'Via Adm Sistema']
+    colunas_verificar = ['Nr. Atend.', 'Paciente', 'Nr. Leito', 'Dieta', 'Volume (ml)', 'Horários', 'Via Adm', 'Embalagem ', 'CodProduto Sistema', 'Via Adm Sistema']
     cota_extra_verificar = ['Paciente', 'Dieta', 'Volume (ml)', 'Horários', 'Via Adm', 'Embalagem ', 'CodProduto Sistema', 'Via Adm Sistema']
 
     # Separação de dados
@@ -211,6 +211,19 @@ def ajustar_janelas():
     #    print("Janela do Internet Explorer não encontrada.")
 
 
+def ordenar_pacientes(dados_df):
+    # Separando os pacientes com 'Segunda_Ocorrencia' marcada como True e False
+    pacientes_segunda_ocorrencia = dados_df[dados_df['Segunda_Ocorrencia']]
+    pacientes_primeira_ocorrencia = dados_df[~dados_df['Segunda_Ocorrencia']]
+    
+    # Ordenando os pacientes sem 'Segunda_Ocorrencia' pela coluna 'Nr'
+    pacientes_primeira_ocorrencia = pacientes_primeira_ocorrencia.sort_values(by='Nr')
+    
+    # Concatenando os dois DataFrames
+    dados_df_ordenado = pd.concat([pacientes_primeira_ocorrencia, pacientes_segunda_ocorrencia], ignore_index=True)
+    
+    return dados_df_ordenado
+
 def main(pacientes_selecionados, espera, caminho_dados, caminho_comum):
     """
     Executa a automação baseada nos parâmetros fornecidos pela interface gráfica.
@@ -238,13 +251,13 @@ def main(pacientes_selecionados, espera, caminho_dados, caminho_comum):
     numero_cliente, hora_entrega, data_formatada, nome_cliente  = preparar_cabecalho_cliente(caminho_dados)
 
     dados_df = marcar_duplicatas(dados_df, ['Paciente', 'CodProduto Sistema', 'Via Adm Sistema', 'Embalagem '])
-    print(dados_df[['Paciente', 'Volume (ml)', 'Nr. Leito', 'Mudou Leito?', 'Dieta', 'Horários', 'Via Adm']])
+    print(dados_df[['Paciente', 'Volume (ml)', 'Unidade', 'Nr. Leito', 'Mudou Leito?', 'Dieta', 'Horários', 'Via Adm']])
     
     # Filtrar o DataFrame para incluir apenas as linhas com pacientes selecionados
     dados_df = dados_df[dados_df['Paciente'].isin(pacientes_selecionados)]
 
     #Criando Df para os que precisam alterar o leito
-    pacientes_mudaram_leito = dados_df[dados_df['Mudou Leito?'].str.upper() == 'SIM']
+    pacientes_mudaram_leito = dados_df[dados_df['Mudou Leito?'].astype(str).str.upper() == 'SIM']
     print(pacientes_mudaram_leito['Mudou Leito?'])
 
     primeira_iteracao = True
@@ -253,6 +266,9 @@ def main(pacientes_selecionados, espera, caminho_dados, caminho_comum):
         # Assegure-se de que 'quantitativo_embalagens_df' esteja definido e disponível neste escopo
         atualizar_leitos(pacientes_mudaram_leito, index, espera, bot, not_found, numero_cliente, operacoes_logs)
          
+    dados_df = ordenar_pacientes(dados_df)
+    print(dados_df['Nr'])
+
     # Verificando e abrindo o campo de SOLICITAÇÕES
     verificando_solicitacao(bot, not_found)
   

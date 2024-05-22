@@ -98,3 +98,5 @@ def exibir_logs(operacoes_logs):
 #}
 #
 #exibir_logs(operacoes_logs)
+
+

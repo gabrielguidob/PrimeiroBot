@@ -140,7 +140,7 @@ class Application(tk.Tk):
 
         # Adicionando os detalhes de cada linha problemática
         for idx, row in linhas_com_problemas.iterrows():
-            detalhes_linha = f"Paciente: {row['Paciente']}, Atendimento: {row.get('Nr. Atend.', 'N/A')}"
+            detalhes_linha = f"Nr: {row['Nr']}, Paciente: {row['Paciente']}, Atendimento: {row.get('Nr. Atend.', 'N/A')}"
             label_detalhe = ttk.Label(scroll_frame, text=detalhes_linha, font=('Helvetica', 12))
             label_detalhe.pack(anchor='w', padx=10, pady=5)
 
@@ -177,7 +177,7 @@ class Application(tk.Tk):
         main_frame.pack(padx=10, pady=10, fill='x', expand=True)
 
         # Informações do cabeçalho do cliente
-        info_cliente = f"Cliente: {self.nome_cliente} -\nHora de Entrega: {self.hora_entrega} - Data do Pedido: {self.data_formatada}"
+        info_cliente = f"Cliente: {self.nome_cliente} - Número: {self.numero_cliente}\nHora de Entrega: {self.hora_entrega} - Data do Pedido: {self.data_formatada}"
         header_label = ttk.Label(main_frame, text=info_cliente, style="TLabel")
         header_label.pack(fill='x', expand=True, pady=(0, 10))
 
@@ -224,7 +224,7 @@ class Application(tk.Tk):
 
 
 
-
+ 
 
 
     def voltar_segunda_tela(self):
@@ -270,7 +270,7 @@ class Application(tk.Tk):
         label_velocidade = ttk.Label(main_frame, text="Escolha a velocidade da execução:", style="TLabel")
         label_velocidade.pack()
 
-        opcoes_velocidade = {"Rápida": "0", "Média (Rede Lente)": "0.3", "Lenta (Rede Muito Lenta)": "0.7"}
+        opcoes_velocidade = {"Rápida": "0", "Média (Rede Lenta)": "0.3", "Lenta (Rede Muito Lenta)": "0.7"}
         self.velocidade = tk.StringVar(value="0")  # Define o padrão como rápido
         for texto, valor in opcoes_velocidade.items():
             rb = ttk.Radiobutton(main_frame, text=texto, variable=self.velocidade, value=valor, style="TRadiobutton")
