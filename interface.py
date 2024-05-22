@@ -194,6 +194,9 @@ class Application(tk.Tk):
         scrollbar.pack(side='right', fill='y')
         canvas.configure(yscrollcommand=scrollbar.set)
 
+        # Permitindo o scroll com o mouse
+        canvas.bind("<MouseWheel>", lambda event: canvas.yview_scroll(int(-1*(event.delta/120)), "units"))
+
         scroll_frame = ttk.Frame(canvas, style="TFrame")
         canvas.create_window((0, 0), window=scroll_frame, anchor='nw')
         scroll_frame.bind("<Configure>", lambda e: canvas.configure(scrollregion=canvas.bbox("all")))
@@ -202,7 +205,7 @@ class Application(tk.Tk):
         if self.dados_df is not None:
             for index, row in self.dados_df.iterrows():
                 var = tk.BooleanVar(value=True)  # Checkboxes marcados por padrão
-                chk = ttk.Checkbutton(scroll_frame, text=f"{row['Paciente']} ({row['Nr. Atend.']})", variable=var, style="TCheckbutton")
+                chk = ttk.Checkbutton(scroll_frame, text=f"{row['Nr']} - {row['Paciente']} ({row['Nr. Atend.']})", variable=var, style="TCheckbutton")
                 chk.pack(anchor='w')
                 # Armazena a variável de cada checkbox em uma lista associada ao nome do paciente
                 if row['Paciente'] not in self.pacientes_vars:
@@ -267,7 +270,7 @@ class Application(tk.Tk):
         label_velocidade = ttk.Label(main_frame, text="Escolha a velocidade da execução:", style="TLabel")
         label_velocidade.pack()
 
-        opcoes_velocidade = {"Rápida": "0", "Média": "0.5", "Lenta": "1"}
+        opcoes_velocidade = {"Rápida": "0", "Média (Rede Lente)": "0.3", "Lenta (Rede Muito Lenta)": "0.7"}
         self.velocidade = tk.StringVar(value="0")  # Define o padrão como rápido
         for texto, valor in opcoes_velocidade.items():
             rb = ttk.Radiobutton(main_frame, text=texto, variable=self.velocidade, value=valor, style="TRadiobutton")

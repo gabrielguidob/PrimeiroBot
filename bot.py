@@ -32,6 +32,7 @@ def normalize_dataframe(df):
         if df[col].dtype == 'O':  # Verifica se o tipo da coluna é 'object', geralmente usado para strings
             df[col] = df[col].apply(normalize_spaces)
     return df
+
 # Desabilita erros se não estiver conectado ao Maestro
 BotMaestroSDK.RAISE_NOT_CONNECTED = False
 
@@ -50,9 +51,10 @@ def preparar_cabecalho_cliente(caminho_dados):
     :param caminho_dados: Caminho para a planilha de onde as informações serão lidas.
     :return: Uma tupla contendo o número do cliente, a hora de entrega e a data do pedido formatada.
     """
+ 
     workbook = load_workbook(caminho_dados)
     sheet = workbook.active
-   
+    
     numero_cliente_completo = str(sheet["G5"].value)
     # Divide a string pelo hífen
     partes = numero_cliente_completo.split('-')
@@ -60,6 +62,7 @@ def preparar_cabecalho_cliente(caminho_dados):
     nome_cliente = partes[1].strip() if len(partes) > 1 else ''
     hora_entrega = str(sheet["L5"].value)
     data_pedido = sheet["P5"].value
+    workbook.close()
 
     # Converte data_pedido para datetime se não estiver no formato correto
     if not isinstance(data_pedido, datetime):
@@ -121,7 +124,7 @@ def preparar_dados(caminho_dados, caminho_comum):
 
 
     # Define colunas para verificar
-    colunas_verificar = ['Nr. Atend.', 'Paciente', 'Unidade', 'Nr. Leito', 'Mudou Leito?', 'Dieta', 'Volume (ml)', 'Horários', 'Via Adm', 'Embalagem ', 'CodProduto Sistema', 'Via Adm Sistema']
+    colunas_verificar = ['Nr. Atend.', 'Paciente', 'Unidade', 'Nr. Leito', 'Dieta', 'Volume (ml)', 'Horários', 'Via Adm', 'Embalagem ', 'CodProduto Sistema', 'Via Adm Sistema']
     cota_extra_verificar = ['Paciente', 'Dieta', 'Volume (ml)', 'Horários', 'Via Adm', 'Embalagem ', 'CodProduto Sistema', 'Via Adm Sistema']
 
     # Separação de dados
@@ -241,7 +244,7 @@ def main(pacientes_selecionados, espera, caminho_dados, caminho_comum):
     dados_df = dados_df[dados_df['Paciente'].isin(pacientes_selecionados)]
 
     #Criando Df para os que precisam alterar o leito
-    pacientes_mudaram_leito = dados_df[dados_df['Mudou Leito?'] == 'Sim']
+    pacientes_mudaram_leito = dados_df[dados_df['Mudou Leito?'].str.upper() == 'SIM']
     print(pacientes_mudaram_leito['Mudou Leito?'])
 
     primeira_iteracao = True
