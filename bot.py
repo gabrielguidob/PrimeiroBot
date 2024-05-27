@@ -17,6 +17,8 @@ from inserir import (
     inserir_volume, inserir_horarios, inserir_quantitativo_embalagens, pop_up_erro, inserir_horario_entrega, encontrar_mensagem_cadastrar_paciente)
 import unicodedata
 
+from tkinter import messagebox
+
 
 # para baixar o executavel pyinstaller --noconsole --onefile --add-data "resources;resources" interface.py
 
@@ -212,17 +214,22 @@ def ajustar_janelas():
 
 
 def ordenar_pacientes(dados_df):
+
+    dados_df['Nr'] = pd.to_numeric(dados_df['Nr'], errors='coerce')
+
     # Separando os pacientes com 'Segunda_Ocorrencia' marcada como True e False
     pacientes_segunda_ocorrencia = dados_df[dados_df['Segunda_Ocorrencia']]
     pacientes_primeira_ocorrencia = dados_df[~dados_df['Segunda_Ocorrencia']]
     
     # Ordenando os pacientes sem 'Segunda_Ocorrencia' pela coluna 'Nr'
+
     pacientes_primeira_ocorrencia = pacientes_primeira_ocorrencia.sort_values(by='Nr')
     
     # Concatenando os dois DataFrames
     dados_df_ordenado = pd.concat([pacientes_primeira_ocorrencia, pacientes_segunda_ocorrencia], ignore_index=True)
     
     return dados_df_ordenado
+
 
 def main(pacientes_selecionados, espera, caminho_dados, caminho_comum):
     """
@@ -260,20 +267,19 @@ def main(pacientes_selecionados, espera, caminho_dados, caminho_comum):
     pacientes_mudaram_leito = dados_df[dados_df['Mudou Leito?'].astype(str).str.upper() == 'SIM']
     print(pacientes_mudaram_leito['Mudou Leito?'])
 
-    primeira_iteracao = True
     for index, row in pacientes_mudaram_leito.iterrows():
         # Aplicando a função para encontrar o 'Quantitativo Sistema' correspondente para cada linha
         # Assegure-se de que 'quantitativo_embalagens_df' esteja definido e disponível neste escopo
-        atualizar_leitos(pacientes_mudaram_leito, index, espera, bot, not_found, numero_cliente, operacoes_logs)
-         
+        atualizar_leitos(pacientes_mudaram_leito, index, espera, bot, not_found, numero_cliente, operacoes_logs)     
+    
     dados_df = ordenar_pacientes(dados_df)
-    print(dados_df['Nr'])
 
     # Verificando e abrindo o campo de SOLICITAÇÕES
     verificando_solicitacao(bot, not_found)
   
+    primeira_iteracao = True
     for index, row in dados_df.iterrows():
-
+       print(f"Nr do Paciente a ser inserido: {row['Nr']}")
       # Aplicando a função para encontrar o 'Quantitativo Sistema' correspondente para cada linha
        # Assegure-se de que 'quantitativo_embalagens_df' esteja definido e disponível neste escopo
        dados_df['Quantitativo Sistema'] = dados_df.apply(
@@ -345,9 +351,14 @@ def main(pacientes_selecionados, espera, caminho_dados, caminho_comum):
 
 
        # Log do progresso
-       adicionar_log(operacoes_logs, dados_df.loc[index, 'Paciente'], "Cadastro da Prescrição", status = 0)     
-       
+       adicionar_log(operacoes_logs, dados_df.loc[index, 'Paciente'], "Cadastro da Prescrição", dados_df.loc[index, 'Nr'], status = 0)     
+
+    messagebox.showerror("Acabou","A automação chegou ao fim!")
     exibir_logs(operacoes_logs)
+
+    
+    
+   
 
 
 

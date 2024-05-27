@@ -57,7 +57,7 @@ def atualizar_leitos(pacientes_mudaram_leito, index, espera, bot, not_found, num
         sleep(espera)  # Espera para garantir a sincronização com a interface do sistema
 
         # Adiciona a operação de atualização de leito ao log de operações
-        adicionar_log(operacoes_logs, pacientes_mudaram_leito.loc[index, 'Paciente'], "Atualização do Leito", status = 0)
+        adicionar_log(operacoes_logs, pacientes_mudaram_leito.loc[index, 'Paciente'], "Atualização do Leito", pacientes_mudaram_leito.loc[index, 'Nr'], status = 0)
 
         print("Todos os leitos dos pacientes selecionados foram atualizados.")
     else: 
@@ -65,6 +65,6 @@ def atualizar_leitos(pacientes_mudaram_leito, index, espera, bot, not_found, num
             not_found("cancelar")
         bot.click()
             
-        adicionar_log(operacoes_logs, pacientes_mudaram_leito.loc[index, 'Paciente'], "Atualização do Leito", status = 1)
+        adicionar_log(operacoes_logs, pacientes_mudaram_leito.loc[index, 'Paciente'], "Atualização do Leito", pacientes_mudaram_leito.loc[index, 'Nr'], status = 1)
 
         print("Todos os leitos dos pacientes selecionados foram atualizados.")

@@ -3,6 +3,7 @@ from time import sleep
 from horas import executar_acoes
 from cadastrar import cadastrar_paciente
 import re
+import pandas as pd
 
 # Variável global para a hora formatada, usada na inserção da hora
 hora_formatada = datetime.now().strftime("%H%M")
@@ -152,7 +153,7 @@ def inserir_hora(bot, espera, not_found, index, hora_entrega, primeira_iteracao,
     bot.click_relative(10, 29)
     sleep(0.1 + espera)
 
-
+    
     if primeira_iteracao or dados_df.loc[index, 'Segunda_Ocorrencia']:
         # Inserindo o horário uma vez 
         bot.kb_type(hora_formatada)
@@ -181,7 +182,8 @@ def inserir_unidade_de_interacao(bot, dados_df, index, espera, not_found):
     :param not_found: Função a ser chamada caso o elemento não seja encontrado.
     """
     nome_paciente = dados_df.loc[index, 'Paciente']
-    if  nome_paciente == 'COTA EXTRA':
+    print(f"Unidade:", dados_df.loc[index, 'Unidade'])
+    if  nome_paciente == 'COTA EXTRA' or pd.isnull(dados_df.loc[index, 'Unidade']):
         if not bot.find( "No. prescricao", matching=0.97, waiting_time=10000):
             not_found("No. prescricao")
         bot.click_relative(8, 17)
@@ -192,17 +194,23 @@ def inserir_unidade_de_interacao(bot, dados_df, index, espera, not_found):
         if not bot.find( "unidade de internacao", matching=0.97, waiting_time=10000):
             not_found("unidade de internacao")
         bot.click_relative(37, 17)
-        sleep(0.1 + espera)
-        if not bot.find( "unidade de internacao", matching=0.97, waiting_time=10000):
-            not_found("unidade de internacao")
-        bot.click_relative(37, 17)
-        #if not bot.find( "Selecione o local de entrega", matching=0.97, waiting_time=10000):
-        #    not_found("Selecione o local de entrega")
-        sleep(0.1 + espera)
-        bot.click()
-        sleep(0.1 + espera)
+        #sleep(1 + espera)
+        #bot.click()
+        #if not bot.find( "unidade de internacao", matching=0.97, waiting_time=10000):
+        #    not_found("unidade de internacao")
+        #bot.click_relative(37, 17)
+        ##if not bot.find( "Selecione o local de entrega", matching=0.97, waiting_time=10000):
+        ##    not_found("Selecione o local de entrega")
+        #sleep(0.1 + espera)
+        #bot.click()
+        #sleep(0.1 + espera)
         unidade_internacao = dados_df.loc[index, 'Unidade']
+        print(unidade_internacao)
+        sleep(0.1 + espera)
         bot.kb_type(unidade_internacao)
+        if not bot.find( "No. prescricao", matching=0.97, waiting_time=10000):
+            not_found("No. prescricao")
+        bot.click_relative(8, 17)
         
     
 

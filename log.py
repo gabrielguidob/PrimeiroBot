@@ -3,7 +3,7 @@ from tkinter import ttk
 
 
 
-def adicionar_log(operacoes_logs, nome_paciente, operacao, status):
+def adicionar_log(operacoes_logs, nome_paciente, operacao, nr_paciente, status):
     """
     Atualiza o dicionário de operações com o status de uma operação específica para um paciente.
 
@@ -23,7 +23,7 @@ def adicionar_log(operacoes_logs, nome_paciente, operacao, status):
     # Verifica se o paciente já possui registro no dicionário de operações
     if nome_paciente not in operacoes_logs:
         # Se não, cria um novo registro inicializando todas as operações como vazias
-        operacoes_logs[nome_paciente] = {"Paciente": nome_paciente, "Cadastro do Paciente": "", "Atualização do Leito": "", "Cadastro da Prescrição": ""}
+        operacoes_logs[nome_paciente] = {"Nr": nr_paciente, "Paciente": nome_paciente, "Cadastro do Paciente": "", "Atualização do Leito": "", "Cadastro da Prescrição": ""}
     # Atualiza o status da operação específica para "Sucesso"
     if status == 0:
         operacoes_logs[nome_paciente][operacao] = "Sucesso"
@@ -46,7 +46,7 @@ def exibir_logs(operacoes_logs):
     # Criação da janela de logs
     log_window = tk.Toplevel()
     log_window.title("Status da Execução")
-    log_window.geometry("650x400")
+    log_window.geometry("750x400")
 
     # Configuração do estilo dos componentes da tabela
     style = ttk.Style(log_window)
@@ -60,13 +60,15 @@ def exibir_logs(operacoes_logs):
     style.map("Treeview.Heading", background=[('active', 'lightblue')])
 
     # Criação e configuração da tabela (TreeView)
-    tree = ttk.Treeview(log_window, columns=("Paciente", "Cadastro do Paciente", "Atualização do Leito", "Cadastro da Prescrição"), show="headings", style="Treeview")
+    tree = ttk.Treeview(log_window, columns=("Nr", "Paciente", "Cadastro do Paciente", "Atualização do Leito", "Cadastro da Prescrição"), show="headings", style="Treeview")
     # Configuração dos cabeçalhos das colunas
+    tree.heading("Nr", text="Nr", anchor=tk.CENTER)
     tree.heading("Paciente", text="Paciente", anchor=tk.CENTER)
     tree.heading("Cadastro do Paciente", text="Cadastro do Paciente", anchor=tk.CENTER)
     tree.heading("Atualização do Leito", text="Atualização do Leito", anchor=tk.CENTER)
     tree.heading("Cadastro da Prescrição", text="Lançamento da Prescrição", anchor=tk.CENTER)
     # Ajuste da largura das colunas
+    tree.column("Nr", anchor=tk.CENTER, width=10)
     tree.column("Paciente", anchor=tk.CENTER, width=150)
     tree.column("Cadastro do Paciente", anchor=tk.CENTER, width=100)
     tree.column("Atualização do Leito", anchor=tk.CENTER, width=100)
@@ -74,7 +76,7 @@ def exibir_logs(operacoes_logs):
 
     # Preenchimento da tabela com os dados dos logs de operações
     for nome_paciente, operacoes in operacoes_logs.items():
-        tree.insert("", tk.END, values=(nome_paciente, operacoes["Cadastro do Paciente"], operacoes["Atualização do Leito"], operacoes["Cadastro da Prescrição"]))
+        tree.insert("", tk.END, values=(operacoes["Nr"], nome_paciente, operacoes["Cadastro do Paciente"], operacoes["Atualização do Leito"], operacoes["Cadastro da Prescrição"]))
 
     # Adiciona uma barra de rolagem vertical à tabela
     scrollbar = ttk.Scrollbar(log_window, orient='vertical', command=tree.yview)
