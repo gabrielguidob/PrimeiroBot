@@ -193,7 +193,7 @@ def encontrar_quantitativo(row, quantitativo_embalagens_df, numero_cliente):
         return filtro_final.iloc[0]['Quantitativo Sistema']  # Retorna o primeiro correspondente
     return None  # Retorna None se não houver correspondente
 
-def ajustar_janelas():
+def ajustar_janelas(abrir_fechar):
     todas_janelas = gw.getAllWindows()
     #janela_ie = None
 
@@ -201,7 +201,10 @@ def ajustar_janelas():
         # Verifica se a janela é do Internet Explorer
         if "matriz3:57772" in janela.title:
             #janela_ie = janela
-            janela.maximize()
+            if abrir_fechar == 0:
+                janela.maximize()
+            else: 
+                janela.minimize()
     #    else:
     #        # Minimiza todas as outras janelas
     #        janela.minimize()
@@ -246,7 +249,8 @@ def main(pacientes_selecionados, espera, caminho_dados, caminho_comum):
     # Configuração inicial
     bot = DesktopBot()
     #http://matriz3:57772/csp/homologacao/sneenteral.CSP - Pessoal — Microsoft​ Edge
-    ajustar_janelas()
+    abrir_fechar = 0
+    ajustar_janelas(abrir_fechar)
 
     # Variável para os logs finais
     operacoes_logs = {}

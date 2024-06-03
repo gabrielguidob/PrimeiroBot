@@ -206,7 +206,7 @@ def inserir_unidade_de_interacao(bot, dados_df, index, espera, not_found):
         #sleep(0.1 + espera)
         unidade_internacao = dados_df.loc[index, 'Unidade']
         print(unidade_internacao)
-        sleep(0.1 + espera)
+        sleep(0.3 + espera)
         bot.kb_type(unidade_internacao)
         if not bot.find( "No. prescricao", matching=0.97, waiting_time=10000):
             not_found("No. prescricao")

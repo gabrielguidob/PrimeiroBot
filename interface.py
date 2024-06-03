@@ -140,7 +140,8 @@ class Application(tk.Tk):
 
         # Adicionando os detalhes de cada linha problemática
         for idx, row in linhas_com_problemas.iterrows():
-            detalhes_linha = f"Nr: {row['Nr']}, Paciente: {row['Paciente']}, Atendimento: {row.get('Nr. Atend.', 'N/A')}"
+            print(row['Nr'], row['Paciente'], row.get('Nr. Atend.', 'N/A'))  # Diagnóstico
+            detalhes_linha = f"Paciente: {row['Paciente']}, Atendimento: {row.get('Nr. Atend.', 'N/A')}, Nr: {linhas_com_problemas.loc(idx, 'Nr')}"
             label_detalhe = ttk.Label(scroll_frame, text=detalhes_linha, font=('Helvetica', 12))
             label_detalhe.pack(anchor='w', padx=10, pady=5)
 

@@ -12,8 +12,8 @@ def mostrar_alerta_problemas(linhas_com_problemas):
     label_titulo = ttk.Label(frame, text="Inconsistência de dados nos seguintes pacientes:", font=('Helvetica', 10, 'bold'), foreground="#b22222")
     label_titulo.pack(pady=10)
 
-    for paciente, atendimento in zip(linhas_com_problemas["Paciente"], linhas_com_problemas["Nr. Atend."]):
-        label = ttk.Label(frame, text=f"Paciente: {paciente}, Nr. Atend.: {atendimento}")
+    for paciente, atendimento, nr in zip(linhas_com_problemas["Paciente"], linhas_com_problemas["Nr. Atend."], linhas_com_problemas["Nr"]):
+        label = ttk.Label(frame, text=f"Nr: {nr}, Paciente: {paciente}, Nr. Atend.: {atendimento}")
         label.pack()
 
     janela_alerta.mainloop()
