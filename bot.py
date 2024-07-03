@@ -129,9 +129,13 @@ def preparar_dados(caminho_dados, caminho_comum):
     colunas_verificar = ['Nr. Atend.', 'Paciente', 'Nr. Leito', 'Dieta', 'Volume (ml)', 'Horários', 'Via Adm', 'Embalagem ', 'CodProduto Sistema', 'Via Adm Sistema']
     cota_extra_verificar = ['Paciente', 'Dieta', 'Volume (ml)', 'Horários', 'Via Adm', 'Embalagem ', 'CodProduto Sistema', 'Via Adm Sistema']
 
+    # Remover espaços em branco no final dos valores da coluna 'Paciente'
+    dados_df['Paciente'] = dados_df['Paciente'].str.strip()
+
     # Separação de dados
     cota_extra_df = dados_df[dados_df['Paciente'] == 'COTA EXTRA'].copy()
     outros_df = dados_df[dados_df['Paciente'] != 'COTA EXTRA'].copy()
+    print(f'Cota EXtra verificar: {cota_extra_df}')
 
     # Identifica linhas com problemas nas colunas especificadas
     linhas_com_problemas_df = outros_df[outros_df[colunas_verificar].isna().any(axis=1)]
@@ -145,12 +149,14 @@ def preparar_dados(caminho_dados, caminho_comum):
     dados_df = pd.concat([cota_extra_df, outros_df])
 
     # Combina os registros problemáticos para exibição ou log
+    print(f' Linhas com Problemas DF: {linhas_com_problemas_df}')
+    print(f' Linhas com Problemas COTA EXTRA: {linhas_cota_extra_problemas_df}')
     linhas_com_problemas_df = pd.concat([linhas_com_problemas_df, linhas_cota_extra_problemas_df])
     print('Linhas com problemas:')
     print(linhas_com_problemas_df)
 
     # Normalização dos DataFrames
-    
+    print(f' Linhas com Problemas: {linhas_com_problemas_df}')
 
 
 
