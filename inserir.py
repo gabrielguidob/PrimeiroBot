@@ -271,7 +271,7 @@ def inserir_recipiente(bot, dados_df, index, espera):
     :param dados_df: DataFrame contendo os dados completos, incluindo o tipo de recipiente.
     :param index: Índice da linha atual no DataFrame.
     """
-    recipiente = dados_df.loc[index, 'Embalagem ']
+    recipiente = dados_df.loc[index, 'Embalagem']
     bot.kb_type(recipiente)
     bot.enter()
     sleep(0.1 + espera)

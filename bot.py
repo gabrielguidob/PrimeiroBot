@@ -82,6 +82,8 @@ def preparar_dados(caminho_dados, caminho_comum):
     # Leitura da planilha de dados específica
     dados_df = pd.read_excel(caminho_dados, skiprows=7, dtype=str)
     dados_df = normalize_dataframe(dados_df)
+    dados_df.columns = dados_df.columns.str.strip()
+
 
     # Filtra as linhas onde 'Nr. Atend.' e 'Paciente' são ambos NaN (nulos) ou onde 'Dieta' é 'DIETA ZERO'
     dados_df = dados_df.dropna(subset=['Nr. Atend.', 'Paciente'], how='all')  # Remove se ambas as colunas forem NaN
@@ -126,8 +128,8 @@ def preparar_dados(caminho_dados, caminho_comum):
 
 
     # Define colunas para verificar
-    colunas_verificar = ['Nr. Atend.', 'Paciente', 'Nr. Leito', 'Dieta', 'Volume (ml)', 'Horários', 'Via Adm', 'Embalagem ', 'CodProduto Sistema', 'Via Adm Sistema']
-    cota_extra_verificar = ['Paciente', 'Dieta', 'Volume (ml)', 'Horários', 'Via Adm', 'Embalagem ', 'CodProduto Sistema', 'Via Adm Sistema']
+    colunas_verificar = ['Nr. Atend.', 'Paciente', 'Nr. Leito', 'Dieta', 'Volume (ml)', 'Horários', 'Via Adm', 'Embalagem', 'CodProduto Sistema', 'Via Adm Sistema']
+    cota_extra_verificar = ['Paciente', 'Dieta', 'Volume (ml)', 'Horários', 'Via Adm', 'Embalagem', 'CodProduto Sistema', 'Via Adm Sistema']
 
     # Remover espaços em branco no final dos valores da coluna 'Paciente'
     dados_df['Paciente'] = dados_df['Paciente'].str.strip()
@@ -178,7 +180,7 @@ def marcar_duplicatas(df, coluna):
     return df
 
 def encontrar_quantitativo(row, quantitativo_embalagens_df, numero_cliente):
-    embalagem = row['Embalagem '].strip().upper()  # Certifique-se de remover espaços extras
+    embalagem= row['Embalagem'].strip().upper()  # Certifique-se de remover espaços extras
     volume = float(row['Volume (ml)'])
 
     # Certifique-se de que os tipos de dados para comparação sejam apropriados
@@ -190,7 +192,7 @@ def encontrar_quantitativo(row, quantitativo_embalagens_df, numero_cliente):
     if filtro_cliente.empty:
         filtro_cliente = quantitativo_embalagens_df[quantitativo_embalagens_df['Código Cliente'] == '*']
 
-    # Filtrar por embalagem e intervalo de volume
+    # Filtrar por embalageme intervalo de volume
     filtro_final = filtro_cliente[(filtro_cliente['Recipiente'].str.strip() == embalagem) &
                                   (filtro_cliente['Volume inicial'].astype(float) <= volume) &
                                   (filtro_cliente['Volume final'].astype(float) >= volume)]
@@ -267,7 +269,7 @@ def main(pacientes_selecionados, espera, caminho_dados, caminho_comum):
     # Obtendo o número do cliente da planilha
     numero_cliente, hora_entrega, data_formatada, nome_cliente  = preparar_cabecalho_cliente(caminho_dados)
 
-    dados_df = marcar_duplicatas(dados_df, ['Paciente', 'CodProduto Sistema', 'Via Adm Sistema', 'Embalagem '])
+    dados_df = marcar_duplicatas(dados_df, ['Paciente', 'CodProduto Sistema', 'Via Adm Sistema', 'Embalagem'])
     print(dados_df[['Paciente', 'Volume (ml)', 'Unidade', 'Nr. Leito', 'Mudou Leito?', 'Dieta', 'Horários', 'Via Adm']])
     
     # Filtrar o DataFrame para incluir apenas as linhas com pacientes selecionados
