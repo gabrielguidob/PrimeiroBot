@@ -16,6 +16,8 @@ from inserir import (
     inserir_hora, inserir_unidade_de_interacao, inserir_crm_padrao, inserir_produto, inserir_via_adm, inserir_recipiente,
     inserir_volume, inserir_horarios, inserir_quantitativo_embalagens, pop_up_erro, inserir_horario_entrega, encontrar_mensagem_cadastrar_paciente)
 import unicodedata
+from prescricao_modulos import * 
+
 
 from tkinter import messagebox
 
@@ -242,132 +244,135 @@ def ordenar_pacientes(dados_df):
     return dados_df_ordenado
 
 
-def main(pacientes_selecionados, espera, caminho_dados, caminho_comum):
-    """
-    Executa a automação baseada nos parâmetros fornecidos pela interface gráfica.
+def main(pacientes_selecionados, espera, caminho_dados, caminho_comum, tipo_automacao):
+    if tipo_automacao == "dieta":    
+        """
+        Executa a automação baseada nos parâmetros fornecidos pela interface gráfica.
 
-    :param pacientes_para_cadastro: Lista de pacientes selecionados para cadastro.
-    :param pacientes_para_atualizar_leito: Lista de pacientes selecionados para atualização de leito.
-    :param espera: Tempo de espera para as operações de automação.
-    :param caminho_dados: Caminho para a planilha de dados específica.
-    :param caminho_comum: Caminho para a planilha de configuração comum.
-    """
-    print(pacientes_selecionados)
+        :param pacientes_para_cadastro: Lista de pacientes selecionados para cadastro.
+        :param pacientes_para_atualizar_leito: Lista de pacientes selecionados para atualização de leito.
+        :param espera: Tempo de espera para as operações de automação.
+        :param caminho_dados: Caminho para a planilha de dados específica.
+        :param caminho_comum: Caminho para a planilha de configuração comum.
+        """
+        print(pacientes_selecionados)
 
-    # Configuração inicial
-    bot = DesktopBot()
-    #http://matriz3:57772/csp/homologacao/sneenteral.CSP - Pessoal — Microsoft​ Edge
-    abrir_fechar = 0
-    ajustar_janelas(abrir_fechar)
+        # Configuração inicial
+        bot = DesktopBot()
+        #http://matriz3:57772/csp/homologacao/sneenteral.CSP - Pessoal — Microsoft​ Edge
+        abrir_fechar = 0
+        ajustar_janelas(abrir_fechar)
 
-    # Variável para os logs finais
-    operacoes_logs = {}
+        # Variável para os logs finais
+        operacoes_logs = {}
 
-    # Preparando os dados com os caminhos fornecidos pela interface
-    dados_df, quantitativo_embalagens_df, linhas_com_problemas_df = preparar_dados(caminho_dados, caminho_comum)
+        # Preparando os dados com os caminhos fornecidos pela interface
+        dados_df, quantitativo_embalagens_df, linhas_com_problemas_df = preparar_dados(caminho_dados, caminho_comum)
 
-    # Obtendo o número do cliente da planilha
-    numero_cliente, hora_entrega, data_formatada, nome_cliente  = preparar_cabecalho_cliente(caminho_dados)
+        # Obtendo o número do cliente da planilha
+        numero_cliente, hora_entrega, data_formatada, nome_cliente  = preparar_cabecalho_cliente(caminho_dados)
 
-    dados_df = marcar_duplicatas(dados_df, ['Paciente', 'CodProduto Sistema', 'Via Adm Sistema', 'Embalagem'])
-    print(dados_df[['Paciente', 'Volume (ml)', 'Unidade', 'Nr. Leito', 'Mudou Leito?', 'Dieta', 'Horários', 'Via Adm']])
+        dados_df = marcar_duplicatas(dados_df, ['Paciente', 'CodProduto Sistema', 'Via Adm Sistema', 'Embalagem'])
+        print(dados_df[['Paciente', 'Volume (ml)', 'Unidade', 'Nr. Leito', 'Mudou Leito?', 'Dieta', 'Horários', 'Via Adm']])
+
+        # Filtrar o DataFrame para incluir apenas as linhas com pacientes selecionados
+        dados_df = dados_df[dados_df['Paciente'].isin(pacientes_selecionados)]
+
+        #Criando Df para os que precisam alterar o leito
+        pacientes_mudaram_leito = dados_df[dados_df['Mudou Leito?'].astype(str).str.upper() == 'SIM']
+        print(pacientes_mudaram_leito['Mudou Leito?'])
+
+        for index, row in pacientes_mudaram_leito.iterrows():
+            # Aplicando a função para encontrar o 'Quantitativo Sistema' correspondente para cada linha
+            # Assegure-se de que 'quantitativo_embalagens_df' esteja definido e disponível neste escopo
+            atualizar_leitos(pacientes_mudaram_leito, index, espera, bot, not_found, numero_cliente, operacoes_logs)     
+
+        dados_df = ordenar_pacientes(dados_df)
+
+        # Verificando e abrindo o campo de SOLICITAÇÕES
+        verificando_solicitacao(bot, not_found)
     
-    # Filtrar o DataFrame para incluir apenas as linhas com pacientes selecionados
-    dados_df = dados_df[dados_df['Paciente'].isin(pacientes_selecionados)]
+        primeira_iteracao = True
+        for index, row in dados_df.iterrows():
+           print(f"Nr do Paciente a ser inserido: {row['Nr']}")
+          # Aplicando a função para encontrar o 'Quantitativo Sistema' correspondente para cada linha
+           # Assegure-se de que 'quantitativo_embalagens_df' esteja definido e disponível neste escopo
+           dados_df['Quantitativo Sistema'] = dados_df.apply(
+               lambda row: encontrar_quantitativo(row, quantitativo_embalagens_df, numero_cliente), axis=1) 
+           # Puxando a relação Quantitativo Sistema
+           quantitativo = dados_df.loc[index, 'Quantitativo Sistema']
 
-    #Criando Df para os que precisam alterar o leito
-    pacientes_mudaram_leito = dados_df[dados_df['Mudou Leito?'].astype(str).str.upper() == 'SIM']
-    print(pacientes_mudaram_leito['Mudou Leito?'])
+           print(f"Paciente: {row['Paciente']}, Nr. Atend.: {row['Nr. Atend.']}, Quantitativo Sistema: {quantitativo}, Via Adm Sistema: {row['Via Adm Sistema']}, CodProduto Sistema: {row['CodProduto Sistema']}, Volume: {row['Volume (ml)']}")
 
-    for index, row in pacientes_mudaram_leito.iterrows():
-        # Aplicando a função para encontrar o 'Quantitativo Sistema' correspondente para cada linha
-        # Assegure-se de que 'quantitativo_embalagens_df' esteja definido e disponível neste escopo
-        atualizar_leitos(pacientes_mudaram_leito, index, espera, bot, not_found, numero_cliente, operacoes_logs)     
-    
-    dados_df = ordenar_pacientes(dados_df)
+           # Ignora a primeira linha, para começar no segundo paciente
+           if primeira_iteracao and not dados_df.loc[index, 'Segunda_Ocorrencia']:
+               inserir_codigo_cliente(bot, numero_cliente, not_found, espera)
 
-    # Verificando e abrindo o campo de SOLICITAÇÕES
-    verificando_solicitacao(bot, not_found)
-  
-    primeira_iteracao = True
-    for index, row in dados_df.iterrows():
-       print(f"Nr do Paciente a ser inserido: {row['Nr']}")
-      # Aplicando a função para encontrar o 'Quantitativo Sistema' correspondente para cada linha
-       # Assegure-se de que 'quantitativo_embalagens_df' esteja definido e disponível neste escopo
-       dados_df['Quantitativo Sistema'] = dados_df.apply(
-           lambda row: encontrar_quantitativo(row, quantitativo_embalagens_df, numero_cliente), axis=1) 
-       # Puxando a relação Quantitativo Sistema
-       quantitativo = dados_df.loc[index, 'Quantitativo Sistema']
-       
-       print(f"Paciente: {row['Paciente']}, Nr. Atend.: {row['Nr. Atend.']}, Quantitativo Sistema: {quantitativo}, Via Adm Sistema: {row['Via Adm Sistema']}, CodProduto Sistema: {row['CodProduto Sistema']}, Volume: {row['Volume (ml)']}")
+               inserir_codigo_paciente(bot, dados_df, index, not_found, espera, numero_cliente)
+               encontrar_mensagem_cadastrar_paciente(index, espera, dados_df, bot, not_found, operacoes_logs)
+               sleep(1)
+               bot.enter()
+               pop_up_erro(bot, not_found, espera, hora_entrega)                       
+               inserir_horario_entrega(bot, not_found, espera, hora_entrega)     
+               inserir_hora(bot, espera, not_found, index, hora_entrega, primeira_iteracao, dados_df)
+               pop_up_erro(bot, not_found, espera, hora_entrega)           
+               inserir_unidade_de_interacao(bot, dados_df, index, espera, not_found)           
+               inserir_crm_padrao(bot, espera, not_found)
+               inserir_produto(bot, dados_df, index, espera)
+               inserir_via_adm(bot, dados_df, index, espera)
+               inserir_recipiente(bot, dados_df, index, espera)
+               inserir_volume(bot, dados_df, index, espera, not_found)
+               inserir_horarios(bot, dados_df, index, not_found, espera)
+               inserir_quantitativo_embalagens(bot, quantitativo, not_found, espera, dados_df, index)
+               primeira_iteracao = False  # Atualiza a variável para garantir que o bloco não seja mais executado
 
-       # Ignora a primeira linha, para começar no segundo paciente
-       if primeira_iteracao and not dados_df.loc[index, 'Segunda_Ocorrencia']:
-           inserir_codigo_cliente(bot, numero_cliente, not_found, espera)
-           
-           inserir_codigo_paciente(bot, dados_df, index, not_found, espera, numero_cliente)
-           encontrar_mensagem_cadastrar_paciente(index, espera, dados_df, bot, not_found, operacoes_logs)
-           sleep(1)
-           bot.enter()
-           pop_up_erro(bot, not_found, espera, hora_entrega)                       
-           inserir_horario_entrega(bot, not_found, espera, hora_entrega)     
-           inserir_hora(bot, espera, not_found, index, hora_entrega, primeira_iteracao, dados_df)
-           pop_up_erro(bot, not_found, espera, hora_entrega)           
-           inserir_unidade_de_interacao(bot, dados_df, index, espera, not_found)           
-           inserir_crm_padrao(bot, espera, not_found)
-           inserir_produto(bot, dados_df, index, espera)
-           inserir_via_adm(bot, dados_df, index, espera)
-           inserir_recipiente(bot, dados_df, index, espera)
-           inserir_volume(bot, dados_df, index, espera, not_found)
-           inserir_horarios(bot, dados_df, index, not_found, espera)
-           inserir_quantitativo_embalagens(bot, quantitativo, not_found, espera, dados_df, index)
-           primeira_iteracao = False  # Atualiza a variável para garantir que o bloco não seja mais executado
+           elif not dados_df.loc[index, 'Segunda_Ocorrencia']:
 
-       elif not dados_df.loc[index, 'Segunda_Ocorrencia']:
-           
-           inserir_codigo_paciente(bot, dados_df, index, not_found, espera, numero_cliente)
-           encontrar_mensagem_cadastrar_paciente(index, espera, dados_df, bot, not_found, operacoes_logs)
-           pop_up_erro(bot, not_found, espera, hora_entrega)
-           inserir_hora(bot, espera, not_found, index, hora_entrega, primeira_iteracao, dados_df)
-           inserir_unidade_de_interacao(bot, dados_df, index, espera, not_found)
-           inserir_crm_padrao(bot, espera, not_found)
-           inserir_produto(bot, dados_df, index, espera)
-           inserir_via_adm(bot, dados_df, index, espera)
-           inserir_recipiente(bot, dados_df, index, espera)
-           inserir_volume(bot, dados_df, index, espera, not_found)
-           inserir_horarios(bot, dados_df, index, not_found, espera)
-           inserir_quantitativo_embalagens(bot, quantitativo, not_found, espera, dados_df, index)
-       
-       else:
-           print(f"Paciente: {row['Paciente']}, Segunda Ocorrencia: {row['Segunda_Ocorrencia']}")
-           sleep(1)
-           verificando_solicitacao(bot, not_found)
-           sleep(1)
-           inserir_codigo_cliente(bot, numero_cliente, not_found, espera)         
-           inserir_codigo_paciente(bot, dados_df, index, not_found, espera, numero_cliente)
-           sleep(1)
-           bot.enter()
-           pop_up_erro(bot, not_found, espera, hora_entrega)                       
-           inserir_horario_entrega(bot, not_found, espera, hora_entrega)     
-           inserir_hora(bot, espera, not_found, index, hora_entrega, primeira_iteracao, dados_df)
-           pop_up_erro(bot, not_found, espera, hora_entrega)           
-           inserir_unidade_de_interacao(bot, dados_df, index, espera, not_found)           
-           inserir_crm_padrao(bot, espera, not_found)
-           inserir_produto(bot, dados_df, index, espera)
-           inserir_via_adm(bot, dados_df, index, espera)
-           inserir_recipiente(bot, dados_df, index, espera)
-           inserir_volume(bot, dados_df, index, espera, not_found)
-           inserir_horarios(bot, dados_df, index, not_found, espera)
-           inserir_quantitativo_embalagens(bot, quantitativo, not_found, espera, dados_df, index)
-           
+               inserir_codigo_paciente(bot, dados_df, index, not_found, espera, numero_cliente)
+               encontrar_mensagem_cadastrar_paciente(index, espera, dados_df, bot, not_found, operacoes_logs)
+               pop_up_erro(bot, not_found, espera, hora_entrega)
+               inserir_hora(bot, espera, not_found, index, hora_entrega, primeira_iteracao, dados_df)
+               inserir_unidade_de_interacao(bot, dados_df, index, espera, not_found)
+               inserir_crm_padrao(bot, espera, not_found)
+               inserir_produto(bot, dados_df, index, espera)
+               inserir_via_adm(bot, dados_df, index, espera)
+               inserir_recipiente(bot, dados_df, index, espera)
+               inserir_volume(bot, dados_df, index, espera, not_found)
+               inserir_horarios(bot, dados_df, index, not_found, espera)
+               inserir_quantitativo_embalagens(bot, quantitativo, not_found, espera, dados_df, index)
+
+           else:
+               print(f"Paciente: {row['Paciente']}, Segunda Ocorrencia: {row['Segunda_Ocorrencia']}")
+               sleep(1)
+               verificando_solicitacao(bot, not_found)
+               sleep(1)
+               inserir_codigo_cliente(bot, numero_cliente, not_found, espera)         
+               inserir_codigo_paciente(bot, dados_df, index, not_found, espera, numero_cliente)
+               sleep(1)
+               bot.enter()
+               pop_up_erro(bot, not_found, espera, hora_entrega)                       
+               inserir_horario_entrega(bot, not_found, espera, hora_entrega)     
+               inserir_hora(bot, espera, not_found, index, hora_entrega, primeira_iteracao, dados_df)
+               pop_up_erro(bot, not_found, espera, hora_entrega)           
+               inserir_unidade_de_interacao(bot, dados_df, index, espera, not_found)           
+               inserir_crm_padrao(bot, espera, not_found)
+               inserir_produto(bot, dados_df, index, espera)
+               inserir_via_adm(bot, dados_df, index, espera)
+               inserir_recipiente(bot, dados_df, index, espera)
+               inserir_volume(bot, dados_df, index, espera, not_found)
+               inserir_horarios(bot, dados_df, index, not_found, espera)
+               inserir_quantitativo_embalagens(bot, quantitativo, not_found, espera, dados_df, index)
 
 
-       # Log do progresso
-       adicionar_log(operacoes_logs, dados_df.loc[index, 'Paciente'], "Cadastro da Prescrição", dados_df.loc[index, 'Nr'], status = 0)     
 
-    messagebox.showerror("Acabou","A automação chegou ao fim!")
-    exibir_logs(operacoes_logs)
+           # Log do progresso
+           adicionar_log(operacoes_logs, dados_df.loc[index, 'Paciente'], "Cadastro da Prescrição", dados_df.loc[index, 'Nr'], status = 0)     
 
+        messagebox.showerror("Acabou","A automação chegou ao fim!")
+        exibir_logs(operacoes_logs)
+
+    elif tipo_automacao == "modulos":
+        messagebox.showerror("Acabou","Foi escolhido MODULO")
     
     
    

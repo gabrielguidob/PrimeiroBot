@@ -2,6 +2,7 @@ import tkinter as tk
 from tkinter import filedialog, ttk
 from tkinter import messagebox
 from bot import preparar_dados, preparar_cabecalho_cliente, main
+from preparar_modulos import *
 import sys
 import pyautogui
 import alerta_problemas
@@ -31,7 +32,8 @@ class Application(tk.Tk):
         self.planilha_path = tk.StringVar()  # Caminho da planilha selecionada pelo usuário
         self.dados_df = None  # DataFrame que armazenará os dados da planilha escolhida
 
-        self.verificar_resolucao()
+        #self.verificar_resolucao()
+        self.tipo_automacao = tk.StringVar()  # Variável de controle para o tipo de automação
         self.mostrar_primeira_tela()  # Exibe a primeira tela da interface
         self.protocol("WM_DELETE_WINDOW", self.on_close)  # Define o método on_close para ser chamado ao fechar a janela
 
@@ -56,26 +58,27 @@ class Application(tk.Tk):
             self.destroy()  # Fecha a aplicação se a resolução não for a desejada
 
     def mostrar_primeira_tela(self):
-        """
-        Configura e exibe a primeira tela da interface. Esta tela permite ao usuário escolher uma planilha de dados
-        para processamento. A tela inclui um rótulo informativo e um botão para selecionar a planilha.
-
-        Parâmetros:
-            Não possui parâmetros.
-        """
-        self.limpar_tela_principal()  # Limpa a tela principal para garantir que a interface esteja limpa antes de adicionar novos elementos
-        frame = ttk.Frame(self)  # Cria um frame como contêiner para os elementos desta tela
-        frame.pack(padx=10, pady=10, fill='x', expand=True)  # Posiciona o frame na janela
+        self.limpar_tela_principal()
+        frame = ttk.Frame(self)
+        frame.pack(padx=10, pady=10, fill='x', expand=True)
 
         self.pacientes_vars = {}
 
-        # Cria e configura um rótulo informativo
-        label = ttk.Label(frame, text="Escolha a planilha de dados:", style="TLabel")
-        label.pack(fill='x', expand=True)  # Posiciona o rótulo no frame
+        label = ttk.Label(frame, text="Escolha a planilha de dados DIETA:", style="TLabel")
+        label.pack(fill='x', expand=True)
 
-        # Cria e configura um botão que permite ao usuário escolher a planilha
-        button_escolher = ttk.Button(frame, text="Escolher Planilha", command=self.escolher_planilha, style="TButton")
-        button_escolher.pack(fill='x', expand=True)  # Posiciona o botão no frame
+        button_escolher_prescricao = ttk.Button(frame, text="Escolher Planilha", command=self.escolher_planilha_dieta, style="TButton")
+        button_escolher_prescricao.pack(fill='x', expand=True)
+
+        label = ttk.Label(frame, text="", style="TLabel")
+        label.pack(fill='x', pady=20, expand=True)
+
+        label = ttk.Label(frame, text="Escolha a planilha de dados MÓDULOS/SUPLEMENTOS:", style="TLabel")
+        label.pack(fill='x', expand=True)
+
+        button_escolher_modulos = ttk.Button(frame, text="Escolher Planilha", command=self.escolher_planilha_modulos, style="TButton")
+        button_escolher_modulos.pack(fill='x', expand=True)
+
 
     def limpar_tela_principal(self):
         """
@@ -90,10 +93,30 @@ class Application(tk.Tk):
 
 
 
-    def escolher_planilha(self):
-        caminho_dados = filedialog.askopenfilename(title="Escolha a planilha de dados", filetypes=[("Excel files", "*.xlsx *.xls")])
+    def escolher_planilha_dieta(self):
+        caminho_dados = filedialog.askopenfilename(title="Escolha a planilha de dados DIETA", filetypes=[("Excel files", "*.xlsx *.xls")])
         if caminho_dados:
             self.planilha_path.set(caminho_dados)
+            self.tipo_automacao.set("dieta")  # Atualiza o tipo de automação
+            try:
+                # Carrega os dados e o cabeçalho
+                caminho_comum = 'P:/LA VITA/TI/BotCity/Planilha de Configuração HOMOLOGAÇÃO 03.xlsx'
+                self.dados_df, self.quantitativo_embalagens_df, linhas_com_problemas = preparar_dados(caminho_dados, caminho_comum)
+                self.numero_cliente, self.hora_entrega, self.data_formatada, self.nome_cliente = preparar_cabecalho_cliente(caminho_dados)
+                if not linhas_com_problemas.empty:
+                    self.mostrar_segunda_tela()
+                    alerta_problemas.mostrar_alerta_problemas(linhas_com_problemas)
+                else:
+                    self.mostrar_segunda_tela()
+            except Exception as e:
+                messagebox.showerror("Erro", f"Erro ao processar a planilha: {e}")
+
+
+    def escolher_planilha_modulos(self):
+        caminho_dados = filedialog.askopenfilename(title="Escolha a planilha de dados MÓDULOS/SUPLEMENTOS", filetypes=[("Excel files", "*.xlsx *.xls")])
+        if caminho_dados:
+            self.planilha_path.set(caminho_dados)
+            self.tipo_automacao.set("modulos")  # Atualiza o tipo de automação
             try:
                 # Carrega os dados e o cabeçalho
                 caminho_comum = 'P:/LA VITA/TI/BotCity/Planilha de Configuração HOMOLOGAÇÃO 03.xlsx'
@@ -343,12 +366,13 @@ class Application(tk.Tk):
         caminho_dados = self.planilha_path.get()
         caminho_comum = "P:/LA VITA/TI/BotCity/Planilha de Configuração HOMOLOGAÇÃO 03.xlsx"
 
+        tipo_automacao = self.tipo_automacao.get()  # Obtém o tipo de automação
 
         # Minimiza a interface gráfica para liberar a tela para a automação
         self.iconify()
 
         # Executa a função main e após sua conclusão, reinicia a aplicação
-        main(pacientes_selecionados, espera, caminho_dados, caminho_comum)
+        main(pacientes_selecionados, espera, caminho_dados, caminho_comum, tipo_automacao) 
 
         self.deiconify()
         # Destrua a interface atual
