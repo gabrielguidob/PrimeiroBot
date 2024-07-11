@@ -16,7 +16,9 @@ from inserir import (
     inserir_hora, inserir_unidade_de_interacao, inserir_crm_padrao, inserir_produto, inserir_via_adm, inserir_recipiente,
     inserir_volume, inserir_horarios, inserir_quantitativo_embalagens, pop_up_erro, inserir_horario_entrega, encontrar_mensagem_cadastrar_paciente)
 import unicodedata
-from prescricao_modulos import * 
+from prescricao_modulos import prescricao_modulos_suplementos
+from preparar_modulos import preparar_dados_modulos
+
 
 
 from tkinter import messagebox
@@ -245,6 +247,14 @@ def ordenar_pacientes(dados_df):
 
 
 def main(pacientes_selecionados, espera, caminho_dados, caminho_comum, tipo_automacao):
+    # Configuração inicial
+    bot = DesktopBot()
+    #http://matriz3:57772/csp/homologacao/sneenteral.CSP - Pessoal — Microsoft​ Edge
+    abrir_fechar = 0
+    ajustar_janelas(abrir_fechar)
+    # Variável para os logs finais
+    operacoes_logs = {}
+    
     if tipo_automacao == "dieta":    
         """
         Executa a automação baseada nos parâmetros fornecidos pela interface gráfica.
@@ -257,14 +267,7 @@ def main(pacientes_selecionados, espera, caminho_dados, caminho_comum, tipo_auto
         """
         print(pacientes_selecionados)
 
-        # Configuração inicial
-        bot = DesktopBot()
-        #http://matriz3:57772/csp/homologacao/sneenteral.CSP - Pessoal — Microsoft​ Edge
-        abrir_fechar = 0
-        ajustar_janelas(abrir_fechar)
-
-        # Variável para os logs finais
-        operacoes_logs = {}
+        
 
         # Preparando os dados com os caminhos fornecidos pela interface
         dados_df, quantitativo_embalagens_df, linhas_com_problemas_df = preparar_dados(caminho_dados, caminho_comum)
@@ -372,6 +375,9 @@ def main(pacientes_selecionados, espera, caminho_dados, caminho_comum, tipo_auto
         exibir_logs(operacoes_logs)
 
     elif tipo_automacao == "modulos":
+        numero_cliente, hora_entrega, data_formatada, nome_cliente  = preparar_cabecalho_cliente(caminho_dados)
+        dados_df, quantitativo_embalagens_df, linhas_com_problemas_df = preparar_dados_modulos(caminho_dados, caminho_comum, numero_cliente)
+        prescricao_modulos_suplementos(dados_df, bot, espera, not_found, numero_cliente, operacoes_logs, hora_entrega)
         messagebox.showerror("Acabou","Foi escolhido MODULO")
     
     

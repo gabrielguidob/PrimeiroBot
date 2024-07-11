@@ -1,7 +1,43 @@
 import pandas as pd
-from bot import *
+import unicodedata
 
-def preparar_dados(caminho_dados, caminho_comum):
+
+def normalize_spaces(text):
+    if pd.isna(text):
+        return text  # Retorna o valor original se for NaN
+    return ''.join(' ' if unicodedata.category(char) == 'Zs' else char for char in text)
+
+def normalize_dataframe(df):
+    # Aplica a normalização de espaços a todas as colunas do tipo string
+    for col in df.columns:
+        if df[col].dtype == 'O':  # Verifica se o tipo da coluna é 'object', geralmente usado para strings
+            df[col] = df[col].apply(normalize_spaces)
+    return df
+
+def encontrar_quantitativo(row, quantitativo_embalagens_df, numero_cliente):
+    embalagem= row['Embalagem'].strip().upper()  # Certifique-se de remover espaços extras
+    volume = float(row['Volume (ml)'])
+
+    # Certifique-se de que os tipos de dados para comparação sejam apropriados
+    quantitativo_embalagens_df['Código Cliente'] = quantitativo_embalagens_df['Código Cliente'].astype(str)
+    numero_cliente = str(numero_cliente).strip()  # Converta e limpe espaços
+
+    # Filtra quantitativo_embalagens_df pelo código do cliente, ou usa '*' se o cliente específico não for encontrado
+    filtro_cliente = quantitativo_embalagens_df[quantitativo_embalagens_df['Código Cliente'] == numero_cliente]
+    if filtro_cliente.empty:
+        filtro_cliente = quantitativo_embalagens_df[quantitativo_embalagens_df['Código Cliente'] == '*']
+
+    # Filtrar por embalageme intervalo de volume
+    filtro_final = filtro_cliente[(filtro_cliente['Recipiente'].str.strip() == embalagem) &
+                                  (filtro_cliente['Volume inicial'].astype(float) <= volume) &
+                                  (filtro_cliente['Volume final'].astype(float) >= volume)]
+
+    if not filtro_final.empty:
+        return filtro_final.iloc[0]['Quantitativo Sistema']  # Retorna o primeiro correspondente
+    return None  # Retorna None se não houver correspondente
+
+
+def preparar_dados_modulos(caminho_dados, caminho_comum, numero_cliente):
 
     caminho_comum = '.\Planilha de Configuração.xlsx'
     # Leitura da planilha de dados específica
@@ -102,14 +138,46 @@ def preparar_dados(caminho_dados, caminho_comum):
     # Recombinar os DataFrames na sequência requisitada
     dados_df_final = pd.concat([modulos_df, suplementos_df, modulos_dietas_df], ignore_index=True)
 
+    # Ajustar Volume (ml) se Módulo for igual a TCM
+    dados_df_final.loc[dados_df_final['Módulo'] == 'TCM', 'Volume (ml)'] = dados_df_final['Volume (ml)'].astype(float) + dados_df_final['Quantidade\n(GR ou ML)'].astype(float)
 
     # Realizar as alterações finais nas colunas
     dados_df_final.loc[dados_df_final['Grupo'] == 'Módulos', 'CodProduto Sistema'] = 999
-    dados_df_final.loc[(dados_df_final['Grupo'] == 'Módulos') & (dados_df_final['Apresen-tação'] == 'S'), 'Volume (ml)'] = 0
+    dados_df_final.loc[(dados_df_final['Grupo'] == 'Módulos') & (dados_df_final['Apresen-tação'] == 'S'), 'Volume (ml)'] = 0.0
 
     # Atualizar a coluna Embalagem
     dados_df_final.loc[dados_df_final['Embalagem'] == 'Original do produto', 'Embalagem'] = 'Separado'
     
+
+    # Criação da coluna 'Segunda_Ocorrencia'
+    dados_df_final['Segunda_Ocorrencia'] = False
+    
+    # Filtrar linhas que não têm 'Apresen-tação' igual a 'Ad ↑'
+    df_filtrado = dados_df_final[dados_df_final['Apresen-tação'] != 'Ad ↑']
+    
+    # Iterar sobre o DataFrame filtrado e verificar repetições
+    pacientes_verificados = set()
+    for index, row in df_filtrado.iterrows():
+        chave_paciente = (row['Nr. Atend.'], row['Paciente'])
+        
+        if chave_paciente in pacientes_verificados:
+            dados_df_final.at[index, 'Segunda_Ocorrencia'] = True
+        else:
+            duplicados = df_filtrado[
+                (df_filtrado['Nr. Atend.'] == row['Nr. Atend.']) & 
+                (df_filtrado['Paciente'] == row['Paciente']) & 
+                (df_filtrado.index != index)
+            ]
+            if not duplicados.empty:
+                dados_df_final.loc[duplicados.index[1:], 'Segunda_Ocorrencia'] = True
+                pacientes_verificados.add(chave_paciente)
+
+
+    # Chamada para encontrar quantitativo após as alterações
+    dados_df_final['Quantitativo Sistema'] = dados_df_final.apply(
+        lambda row: encontrar_quantitativo(row, quantitativo_embalagens_df, numero_cliente), axis=1)
+
+
     # Exibe o DataFrame final
     print(dados_df_final)
 

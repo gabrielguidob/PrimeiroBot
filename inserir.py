@@ -285,7 +285,7 @@ def inserir_volume(bot, dados_df, index, espera, not_found):
     :param index: Índice da linha atual no DataFrame.
     """
     
-    volume = dados_df.loc[index, 'Volume (ml)']
+    volume = str(dados_df.loc[index, 'Volume (ml)'])
     bot.kb_type(volume)
     bot.enter()
     sleep(0.1 + espera)
@@ -350,7 +350,8 @@ def inserir_quantitativo_embalagens(bot, quantitativo, not_found, espera, dados_
     sleep(0.1 + espera)  # Segundo clique necessário neste tipo de campo de informação
     bot.click()
     sleep(0.1 + espera)
-    bot.kb_type(quantitativo)
+    if quantitativo:
+        bot.kb_type(quantitativo)
     sleep(0.1 + espera)
     bot.enter()
     sleep(0.1 + espera)

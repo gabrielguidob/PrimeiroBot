@@ -2,7 +2,7 @@ import tkinter as tk
 from tkinter import filedialog, ttk
 from tkinter import messagebox
 from bot import preparar_dados, preparar_cabecalho_cliente, main
-from preparar_modulos import *
+from preparar_modulos import preparar_dados_modulos
 import sys
 import pyautogui
 import alerta_problemas
@@ -120,8 +120,8 @@ class Application(tk.Tk):
             try:
                 # Carrega os dados e o cabeçalho
                 caminho_comum = 'P:/LA VITA/TI/BotCity/Planilha de Configuração HOMOLOGAÇÃO 03.xlsx'
-                self.dados_df, self.quantitativo_embalagens_df, linhas_com_problemas = preparar_dados(caminho_dados, caminho_comum)
                 self.numero_cliente, self.hora_entrega, self.data_formatada, self.nome_cliente = preparar_cabecalho_cliente(caminho_dados)
+                self.dados_df, self.quantitativo_embalagens_df, linhas_com_problemas = preparar_dados_modulos(caminho_dados, caminho_comum, self.numero_cliente)
                 if not linhas_com_problemas.empty:
                     self.mostrar_segunda_tela()
                     alerta_problemas.mostrar_alerta_problemas(linhas_com_problemas)
