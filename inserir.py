@@ -478,3 +478,54 @@ def inserir_codigo_paciente_leito(bot, nome_paciente, espera, not_found):
         not_found("Descricao")
     bot.click_relative(0, 33)
     sleep(0.1 + espera)
+
+
+def inserir_modulos(bot, not_found, index, dados_df, linhas_adicionais):
+    if not bot.find("coluna produto", matching=0.97, waiting_time=10000):
+        not_found("coluna produto")
+    bot.click()
+    sleep(0.3)
+    bot.click_relative(16, 28)
+
+    sleep(0.3)
+    if not bot.find("botao modulos", matching=0.97, waiting_time=10000):
+        not_found("botao modulos")
+    bot.click()
+    
+    bot.kb_type(dados_df.loc[index, 'Módulo'])
+    bot.enter()
+    bot.kb_type(dados_df.loc[index, 'Quantidade\n(GR ou ML)'])
+    bot.enter()
+    bot.enter()
+
+    # Inserir dados das linhas adicionais 'Ad ↑'
+    for linha_ad in linhas_adicionais:
+        bot.kb_type(linha_ad['Módulo'])
+        bot.enter()
+        bot.kb_type(linha_ad['Quantidade\n(GR ou ML)'])
+        bot.enter()
+        bot.enter()
+
+    bot.tab()
+    bot.tab()
+    bot.tab()
+    bot.tab()
+    bot.enter()
+
+    if not bot.find("botao alterar", matching=0.97, waiting_time=10000):
+        not_found("botao alterar")
+    bot.click()
+    sleep(0.1)
+    if not bot.find("botao ok", matching=0.97, waiting_time=10000):
+        not_found("botao ok")
+    bot.click()
+    sleep(0.1)
+    if not bot.find("botao cancelar", matching=0.97, waiting_time=10000):
+        not_found("botao cancelar")
+    bot.click()
+    sleep(0.1)
+    
+
+
+    
+    

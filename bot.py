@@ -377,6 +377,7 @@ def main(pacientes_selecionados, espera, caminho_dados, caminho_comum, tipo_auto
     elif tipo_automacao == "modulos":
         numero_cliente, hora_entrega, data_formatada, nome_cliente  = preparar_cabecalho_cliente(caminho_dados)
         dados_df, quantitativo_embalagens_df, linhas_com_problemas_df = preparar_dados_modulos(caminho_dados, caminho_comum, numero_cliente)
+        dados_df = dados_df[dados_df['Paciente'].isin(pacientes_selecionados)]
         prescricao_modulos_suplementos(dados_df, bot, espera, not_found, numero_cliente, operacoes_logs, hora_entrega)
         messagebox.showerror("Acabou","Foi escolhido MODULO")
     

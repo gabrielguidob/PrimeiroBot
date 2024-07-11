@@ -12,33 +12,37 @@ COLUNAS DA DF
 '''
 
 def prescricao_modulos_suplementos(dados_df, bot, espera, not_found, numero_cliente, operacoes_logs, hora_entrega):
-
-    #Criando Df para os que precisam alterar o leito
+    # Criando Df para os que precisam alterar o leito
     pacientes_mudaram_leito = dados_df[dados_df['Mudou Leito?'].astype(str).str.upper() == 'SIM']
     print(pacientes_mudaram_leito['Mudou Leito?'])
 
     for index, row in pacientes_mudaram_leito.iterrows():
-        # Aplicando a função para encontrar o 'Quantitativo Sistema' correspondente para cada linha
-        # Assegure-se de que 'quantitativo_embalagens_df' esteja definido e disponível neste escopo
         atualizar_leitos(pacientes_mudaram_leito, index, espera, bot, not_found, numero_cliente, operacoes_logs)
 
     primeira_iteracao = True
-    
 
-    for index, row in dados_df.iterrows():
+    index = 0
+    while index < len(dados_df):
+        row = dados_df.loc[index]
         grupo = row['Grupo']
         repeticao = row['Segunda_Ocorrencia']
         quantitativo = dados_df.loc[index, 'Quantitativo Sistema']
         
+        # Identificar todas as linhas 'Ad ↑' relacionadas
+        linhas_adicionais = []
+        for i in range(index + 1, len(dados_df)):
+            if dados_df.loc[i, 'Apresen-tação'] == 'Ad ↑' and dados_df.loc[i, 'Nr. Atend.'] == row['Nr. Atend.'] and dados_df.loc[i, 'Paciente'] == row['Paciente']:
+                linhas_adicionais.append(dados_df.loc[i])
+            else:
+                break
+        
         if grupo == 'Módulos':
             if repeticao or primeira_iteracao:
-                # Adicione aqui a lógica específica para Módulos com Segunda_Ocorrencia = True
                 sleep(1)
                 verificando_solicitacao(bot, not_found)
                 sleep(1)
                 inserir_codigo_cliente(bot, numero_cliente, not_found, espera)
                 print(f"Linha {index} - Módulos com Segunda_Ocorrencia: {row.to_dict()}")
-                
             
             inserir_codigo_paciente(bot, dados_df, index, not_found, espera, numero_cliente)
             encontrar_mensagem_cadastrar_paciente(index, espera, dados_df, bot, not_found, operacoes_logs)
@@ -56,13 +60,12 @@ def prescricao_modulos_suplementos(dados_df, bot, espera, not_found, numero_clie
             inserir_volume(bot, dados_df, index, espera, not_found)
             inserir_horarios(bot, dados_df, index, not_found, espera)
             inserir_quantitativo_embalagens(bot, quantitativo, not_found, espera, dados_df, index)
+            inserir_modulos(bot, not_found, index, dados_df, linhas_adicionais)
             print(f"Linha {index} - Módulos sem Segunda_Ocorrencia: {row.to_dict()}")
             primeira_iteracao = False
-            
 
         elif grupo == 'Suplementos':
             if repeticao:
-                # Adicione aqui a lógica específica para Suplementos com Segunda_Ocorrencia = True
                 sleep(1)
                 verificando_solicitacao(bot, not_found)
                 sleep(1)
@@ -81,6 +84,7 @@ def prescricao_modulos_suplementos(dados_df, bot, espera, not_found, numero_clie
             inserir_volume(bot, dados_df, index, espera, not_found)
             inserir_horarios(bot, dados_df, index, not_found, espera)
             inserir_quantitativo_embalagens(bot, quantitativo, not_found, espera, dados_df, index)
+            inserir_modulos(bot, not_found, index, dados_df, linhas_adicionais)
             print(f"Linha {index} - Suplementos sem Segunda_Ocorrencia: {row.to_dict()}")
 
         elif grupo == 'Módulos em Dietas':
@@ -100,7 +104,12 @@ def prescricao_modulos_suplementos(dados_df, bot, espera, not_found, numero_clie
             inserir_volume(bot, dados_df, index, espera, not_found)
             inserir_horarios(bot, dados_df, index, not_found, espera)
             inserir_quantitativo_embalagens(bot, quantitativo, not_found, espera, dados_df, index)
+            inserir_modulos(bot, not_found, index, dados_df, linhas_adicionais)
             print(f"Linha {index} - Módulos com Segunda_Ocorrencia: {row.to_dict()}")
+
+        # Incrementa o índice para pular as linhas 'Ad ↑'
+        index += len(linhas_adicionais) + 1 if linhas_adicionais else 1
+
 
 
 
