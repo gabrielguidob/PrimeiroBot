@@ -13,17 +13,32 @@ COLUNAS DA DF
        'Via Adm Sistema']
 '''
 
-def encontrar_linhas_adicionais(dados_df, index, row):
-    # Identificar todas as linhas 'Ad ↑' relacionadas
+def encontrar_linhas_adicionais(dados_df, index):
     linhas_adicionais = []
+    print(f"Processando linha mãe no índice {index}: {dados_df.loc[index].to_dict()}")
     for i in range(index + 1, len(dados_df)):
-        if dados_df.loc[i, 'Apresen-tação'] == 'Ad ↑' and dados_df.loc[i, 'Nr. Atend.'] == row['Nr. Atend.'] and dados_df.loc[i, 'Paciente'] == row['Paciente']:
-            linhas_adicionais.append(dados_df.loc[i])
-
+        print(f"Verificando linha no índice {i}: {dados_df.loc[i].to_dict()}")
+        if dados_df.loc[i, 'Nr. Atend.'] == dados_df.loc[index, 'Nr. Atend.'] and \
+           dados_df.loc[i, 'Paciente'] == dados_df.loc[index, 'Paciente']:
+            if dados_df.loc[i, 'Apresen-tação'] == 'Ad ↑':
+                linhas_adicionais.append(dados_df.loc[i])
+                print(f"Adicionando linha 'Ad ↑' no índice {i}")
+            else:
+                print(f"Parando ao encontrar linha não 'Ad ↑' mas relacionada no índice {i}")
+                break  # Parar ao encontrar uma linha relacionada mas não 'Ad ↑'
+        else:
+            print(f"Parando ao encontrar linha não relacionada no índice {i}")
+            break  # Parar ao encontrar uma linha não relacionada
+    print(f"Linhas adicionais encontradas: {linhas_adicionais}")
     return linhas_adicionais
 
 
+
+
+
 def prescricao_modulos_suplementos(dados_df, bot, espera, not_found, numero_cliente, operacoes_logs, hora_entrega):
+     # Reinicializar os índices do DataFrame
+    dados_df.reset_index(drop=True, inplace=True)
     # Criando Df para os que precisam alterar o leito
     print(f'ANTES FILTRO: {dados_df}')
     pacientes_mudaram_leito = dados_df[dados_df['Mudou Leito?'].astype(str).str.upper() == 'SIM']
@@ -49,7 +64,7 @@ def prescricao_modulos_suplementos(dados_df, bot, espera, not_found, numero_clie
         quantitativo = dados_df.loc[index, 'Quantitativo Sistema']
 
         # Identificar todas as linhas 'Ad ↑' relacionadas
-        linhas_adicionais = encontrar_linhas_adicionais(dados_df, index, row)
+        linhas_adicionais = encontrar_linhas_adicionais(dados_df, index)
         #print(dados_df.loc[index+1, 'Apresen-tação'])
         print(f'LINHAS ADICIONAIS: {linhas_adicionais}')
 
@@ -141,6 +156,3 @@ def prescricao_modulos_suplementos(dados_df, bot, espera, not_found, numero_clie
     messagebox.showerror("Acabou","A automação chegou ao fim!")
     exibir_logs(operacoes_logs)
     print('Automação finalizada')
-
-
-
