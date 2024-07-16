@@ -168,6 +168,41 @@ def inserir_hora(bot, espera, not_found, index, hora_entrega, primeira_iteracao,
         bot.click_relative(14, 18)
         sleep(0.1 + espera)
         inserir_horario_entrega(bot, not_found, espera, hora_entrega)
+
+
+def inserir_hora_suplementos(bot, espera, not_found, index, hora_entrega, primeira_iteracao, dados_df):
+    """
+    Insere a hora atual na interface do usuário.
+
+    :param bot: Instância do bot para interação com a interface.
+    :param espera: Tempo de espera (em segundos) após ações de digitação ou clique.
+    :param not_found: Função a ser chamada caso o elemento não seja encontrado.
+    """
+
+    if not bot.find( "hora pedido", matching=0.97, waiting_time=10000):
+        not_found("hora pedido")
+    bot.click_relative(10, 29)
+    sleep(0.1 + espera)
+    if not bot.find( "hora pedido", matching=0.97, waiting_time=10000):
+        not_found("hora pedido")
+    bot.click_relative(10, 29)
+    sleep(0.1 + espera)
+
+    
+    if primeira_iteracao or dados_df.loc[index, 'Segunda_Ocorrencia']:
+        # Inserindo o horário uma vez 
+        bot.kb_type(hora_formatada)
+        print(f'Hora formatada = {hora_formatada}')
+        sleep(0.1 + espera)
+        # Clicando e escolhendo o Horario de entrega
+        inserir_horario_entrega(bot, not_found, espera, hora_entrega)
+
+    else:
+        if not bot.find( "No prescricao", matching=0.97, waiting_time=10000):
+            not_found("No prescricao")
+        bot.click_relative(14, 18)
+        sleep(0.1 + espera)
+        inserir_horario_entrega(bot, not_found, espera, hora_entrega)
            
     
 
@@ -491,7 +526,7 @@ def inserir_modulos(bot, not_found, index, dados_df, linhas_adicionais):
     if not bot.find("botao modulos", matching=0.97, waiting_time=10000):
         not_found("botao modulos")
     bot.click()
-    
+    sleep(1)
     bot.kb_type(dados_df.loc[index, 'Módulo'])
     bot.enter()
     bot.kb_type(dados_df.loc[index, 'Quantidade\n(GR ou ML)'])
