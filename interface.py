@@ -228,13 +228,16 @@ class Application(tk.Tk):
         self.pacientes_vars = {}
         if self.dados_df is not None:
             for index, row in self.dados_df.iterrows():
-                var = tk.BooleanVar(value=True)  # Checkboxes marcados por padrão
-                chk = ttk.Checkbutton(scroll_frame, text=f"{row['Nr']} - {row['Paciente']} ({row['Nr. Atend.']})", variable=var, style="TCheckbutton")
-                chk.pack(anchor='w')
-                # Armazena a variável de cada checkbox em uma lista associada ao nome do paciente
-                if row['Paciente'] not in self.pacientes_vars:
-                    self.pacientes_vars[row['Paciente']] = []
-                self.pacientes_vars[row['Paciente']].append(var)
+                if row['Apresen-tação'] == 'Ad ↑':
+                    pass
+                else:
+                    var = tk.BooleanVar(value=True)  # Checkboxes marcados por padrão
+                    chk = ttk.Checkbutton(scroll_frame, text=f"{row['Nr']} - {row['Paciente']} ({row['Nr. Atend.']})", variable=var, style="TCheckbutton")
+                    chk.pack(anchor='w')
+                    # Armazena a variável de cada checkbox em uma lista associada ao nome do paciente
+                    if row['Paciente'] not in self.pacientes_vars:
+                        self.pacientes_vars[row['Paciente']] = []
+                    self.pacientes_vars[row['Paciente']].append(var)
 
         # Botões de navegação, colocados de forma que sempre fiquem visíveis
         button_frame = ttk.Frame(self)
