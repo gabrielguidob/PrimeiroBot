@@ -222,8 +222,18 @@ class Application(tk.Tk):
                         total_seringas += 2 * len(horarios)
                     elif 60 <= volume <= 79:
                         total_seringas += 3 * len(horarios)
-                    elif 80 <= volume <= 199:
-                        total_seringas += 1 * len(horarios)
+                    elif 80 <= volume <= 99:
+                        total_seringas += 4 * len(horarios)
+                    elif 100 <= volume <= 119:
+                        total_seringas += 5 * len(horarios)
+                    elif 120 <= volume <= 139:
+                        total_seringas += 6 * len(horarios)
+                    elif 140 <= volume <= 159:
+                        total_seringas += 7 * len(horarios)
+                    elif 160 <= volume <= 179:
+                        total_seringas += 8 * len(horarios)
+                    elif 180 <= volume <= 199:
+                        total_seringas += 9 * len(horarios)
                 resultado = (dieta, total_seringas, total_seringas * 20)
                 resultados.append(resultado)
 
@@ -308,7 +318,7 @@ class Application(tk.Tk):
     def gerar_texto_final(self, numero_cliente, nome_cliente, hora_entrega, resultados_seringas_cheias, total_10ml, total_20ml):
         data_atual = datetime.now().strftime("%d/%m/%Y")
         texto = f"HOSPITAL {nome_cliente.upper()}  |  {data_atual}  |  Entrega das {hora_entrega}\n"
-        texto += "-" * 120 + "\n"
+        texto += "-" * 75 + "\n"
         if resultados_seringas_cheias:
             texto += "SERINGAS 20 ML CHEIAS\n"
             for resultado in resultados_seringas_cheias:
@@ -316,7 +326,7 @@ class Application(tk.Tk):
         texto += "\nSERINGAS A SEREM DESCASCADAS AO TODO\n"
         texto += f"{total_10ml} Seringas de 10ml\n"
         texto += f"{total_20ml} Seringas de 20ml\n"
-        texto += "-" * 120 + "\n"
+        texto += "-" * 75 + "\n"
         return texto
 
     def mostrar_quarta_tela(self):
