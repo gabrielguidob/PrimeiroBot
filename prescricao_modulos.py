@@ -72,18 +72,18 @@ def prescricao_modulos_suplementos(dados_df, bot, espera, not_found, numero_clie
         if grupo == 'Módulos':
             if repeticao or primeira_iteracao:
                 print(f"Linha {index} - Módulos com Segunda_Ocorrencia: {row.to_dict()}")
-                sleep(1)
                 verificando_solicitacao(bot, not_found)
-                sleep(1)
+                sleep(0.5 + espera)
                 inserir_codigo_cliente(bot, numero_cliente, not_found, espera)
 
             print(f"Linha {index} - Módulos sem Segunda_Ocorrencia: {row.to_dict()}")
             inserir_codigo_paciente(bot, dados_df, index, not_found, espera, numero_cliente)
             encontrar_mensagem_cadastrar_paciente(index, espera, dados_df, bot, not_found, operacoes_logs)
-            sleep(1)
+            sleep(0.1 + espera)
             bot.enter()
             pop_up_erro(bot, not_found, espera, hora_entrega)
-            inserir_horario_entrega(bot, not_found, espera, hora_entrega)
+            if repeticao or primeira_iteracao:
+                inserir_horario_entrega(bot, not_found, espera, hora_entrega)
             inserir_hora(bot, espera, not_found, index, hora_entrega, primeira_iteracao, dados_df)
             pop_up_erro(bot, not_found, espera, hora_entrega)
             inserir_unidade_de_interacao(bot, dados_df, index, espera, not_found)
@@ -94,25 +94,25 @@ def prescricao_modulos_suplementos(dados_df, bot, espera, not_found, numero_clie
             inserir_volume(bot, dados_df, index, espera, not_found)
             inserir_horarios(bot, dados_df, index, not_found, espera)
             inserir_quantitativo_embalagens(bot, quantitativo, not_found, espera, dados_df, index)
-            inserir_modulos(bot, not_found, index, dados_df, linhas_adicionais)
+            inserir_modulos(bot, not_found, index, dados_df, linhas_adicionais, espera)
             primeira_iteracao = False
 
         elif grupo == 'Suplementos':
             print('ENTROU IF GRUPO Suplementos')
             if repeticao or primeira_iteracao:
                 print(f"Linha {index} - Suplementos com Segunda_Ocorrencia: {row.to_dict()}")
-                sleep(1)
                 verificando_solicitacao(bot, not_found)
-                sleep(1)
+                sleep(0.5 + espera)
                 inserir_codigo_cliente(bot, numero_cliente, not_found, espera)
 
             print(f"Linha {index} - Suplementos sem Segunda_Ocorrencia: {row.to_dict()}")
             inserir_codigo_paciente(bot, dados_df, index, not_found, espera, numero_cliente)
             encontrar_mensagem_cadastrar_paciente(index, espera, dados_df, bot, not_found, operacoes_logs)
-            sleep(1)
+            sleep(0.1 + espera)
             bot.enter()
             pop_up_erro(bot, not_found, espera, hora_entrega)
-            inserir_horario_entrega(bot, not_found, espera, hora_entrega)
+            if repeticao or primeira_iteracao:
+                inserir_horario_entrega(bot, not_found, espera, hora_entrega)
             inserir_hora(bot, espera, not_found, index, hora_entrega, primeira_iteracao, dados_df)
             pop_up_erro(bot, not_found, espera, hora_entrega)
             inserir_unidade_de_interacao(bot, dados_df, index, espera, not_found)
@@ -128,13 +128,12 @@ def prescricao_modulos_suplementos(dados_df, bot, espera, not_found, numero_clie
         elif grupo == 'Módulos em Dietas':
             primeira_iteracao = True
             print(f"ENTROU IF GRUPO Módulos em Dietas - Linha {index}: {row.to_dict()}")
-            sleep(1)
             verificando_solicitacao(bot, not_found)
-            sleep(1)
+            sleep(0.5 + espera)
             inserir_codigo_cliente(bot, numero_cliente, not_found, espera)
             inserir_codigo_paciente(bot, dados_df, index, not_found, espera, numero_cliente)
             encontrar_mensagem_cadastrar_paciente(index, espera, dados_df, bot, not_found, operacoes_logs)
-            sleep(1)
+            sleep(0.1 + espera)
             bot.enter()
             pop_up_erro(bot, not_found, espera, hora_entrega)
             inserir_horario_entrega(bot, not_found, espera, hora_entrega)
@@ -148,7 +147,7 @@ def prescricao_modulos_suplementos(dados_df, bot, espera, not_found, numero_clie
             inserir_volume(bot, dados_df, index, espera, not_found)
             inserir_horarios(bot, dados_df, index, not_found, espera)
             inserir_quantitativo_embalagens(bot, quantitativo, not_found, espera, dados_df, index)
-            inserir_modulos(bot, not_found, index, dados_df, linhas_adicionais)
+            inserir_modulos(bot, not_found, index, dados_df, linhas_adicionais, espera)
         
         # Log do progresso
         adicionar_log(operacoes_logs, dados_df.loc[index, 'Paciente'], "Cadastro do Módulo/Suplemento", dados_df.loc[index, 'Nr'], status = 0)     

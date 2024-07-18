@@ -38,7 +38,7 @@ def cadastrar_paciente(index, espera, dados_df, bot, not_found, operacoes_logs):
     # Sequência de comandos para inserir informações do paciente no sistema
     #inserir_codigo_cliente_cadastro(bot, not_found, num_cliente)
     #bot.enter()
-    sleep(1)
+    sleep(0.3)
     bot.enter()
     bot.kb_type(dados_df.loc[index, 'Paciente'])
     bot.enter()

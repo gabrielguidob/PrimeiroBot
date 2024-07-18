@@ -54,12 +54,12 @@ def inserir_codigo_cliente(bot, numero_cliente, not_found, espera):
     if not bot.find( "Codigo Cliente", matching=0.97, waiting_time=10000):
         not_found("Codigo Cliente")
     bot.click_relative(23, 33)
-    sleep(0.1 + espera)
+    sleep(espera)
     bot.kb_type(numero_cliente)
     bot.enter()
-    sleep(0.1 + espera)
+    sleep(espera)
     bot.enter()
-    sleep(0.1 + espera)
+    sleep(espera)
 
 def inserir_codigo_paciente(bot, dados_df, index, not_found, espera, numero_cliente):
     """
@@ -72,7 +72,7 @@ def inserir_codigo_paciente(bot, dados_df, index, not_found, espera, numero_clie
     :param espera: Tempo de espera (em segundos) após ações de digitação ou clique.
     """
     #nome_paciente = dados_df.loc[index, 'Nome'].strip()[:-1]  # Removendo espaços e a última letra
-    #sleep(0.1 + espera)
+    #sleep(espera)
     #bot.key_f2()
     #sleep(1)
     nr_atend = dados_df.loc[index, 'Nr. Atend.']
@@ -82,18 +82,18 @@ def inserir_codigo_paciente(bot, dados_df, index, not_found, espera, numero_clie
     if paciente == 'COTA EXTRA':
         bot.kb_type(numero_cliente)
         bot.enter()
-        sleep(0.1 + espera)
+        sleep(espera)
 
     else:
 
         bot.kb_type(nr_atend)
         bot.enter()
-        sleep(0.1 + espera)
+        sleep(espera)
         #sleep(2)
         #if not bot.find( "Descricao", matching=0.97, waiting_time=10000):
         #    not_found("Descricao")
         #bot.click_relative(0, 33)
-    sleep(0.1 + espera)
+    sleep(espera)
 
 
 def pop_up_erro(bot, not_found, espera, hora_entrega):
@@ -109,16 +109,16 @@ def pop_up_erro(bot, not_found, espera, hora_entrega):
         # Tenta encontrar o popup de erro pela descrição
         if bot.find( "favor horario pedido", matching=0.97, waiting_time=1000):            
             bot.click_relative(160, 63)
-            sleep(0.1 + espera)
+            sleep(espera)
 
             # Pressiona Enter para fechar o popup
             #bot.enter()
             contador += 1
-            sleep(1)
+            sleep(0.5 + espera)
             
 
         else: 
-            if contador >= 0:
+            if contador > 0:
             # Após os pop-ups acabarem, o sistema vai para Horário de entrega e só sai se escolher um horario
                 inserir_horario_entrega(bot, not_found, espera, hora_entrega)
                 
@@ -147,27 +147,27 @@ def inserir_hora(bot, espera, not_found, index, hora_entrega, primeira_iteracao,
     if not bot.find( "hora pedido", matching=0.97, waiting_time=10000):
         not_found("hora pedido")
     bot.click_relative(10, 29)
-    sleep(0.1 + espera)
-    if not bot.find( "hora pedido", matching=0.97, waiting_time=10000):
-        not_found("hora pedido")
-    bot.click_relative(10, 29)
-    sleep(0.1 + espera)
+    sleep(espera)
+    #if not bot.find( "hora pedido", matching=0.97, waiting_time=10000):
+    #    not_found("hora pedido")
+    #bot.click_relative(10, 29)
+    #sleep(espera)
 
     
     if primeira_iteracao or dados_df.loc[index, 'Segunda_Ocorrencia']:
         # Inserindo o horário uma vez 
         bot.kb_type(hora_formatada)
         print(f'Hora formatada = {hora_formatada}')
-        sleep(0.1 + espera)
+        sleep(espera)
         # Clicando e escolhendo o Horario de entrega
-        inserir_horario_entrega(bot, not_found, espera, hora_entrega)
+        #inserir_horario_entrega(bot, not_found, espera, hora_entrega)
 
-    else:
-        if not bot.find( "No prescricao", matching=0.97, waiting_time=10000):
-            not_found("No prescricao")
-        bot.click_relative(14, 18)
-        sleep(0.1 + espera)
-        inserir_horario_entrega(bot, not_found, espera, hora_entrega)
+    #else:
+    #    if not bot.find( "No prescricao", matching=0.97, waiting_time=10000):
+    #        not_found("No prescricao")
+    #    bot.click_relative(14, 18)
+    #    sleep(espera)
+    #    inserir_horario_entrega(bot, not_found, espera, hora_entrega)
 
 
 def inserir_hora_suplementos(bot, espera, not_found, index, hora_entrega, primeira_iteracao, dados_df):
@@ -182,18 +182,18 @@ def inserir_hora_suplementos(bot, espera, not_found, index, hora_entrega, primei
     if not bot.find( "hora pedido", matching=0.97, waiting_time=10000):
         not_found("hora pedido")
     bot.click_relative(10, 29)
-    sleep(0.1 + espera)
+    sleep(espera)
     if not bot.find( "hora pedido", matching=0.97, waiting_time=10000):
         not_found("hora pedido")
     bot.click_relative(10, 29)
-    sleep(0.1 + espera)
+    sleep(espera)
 
     
     if primeira_iteracao or dados_df.loc[index, 'Segunda_Ocorrencia']:
         # Inserindo o horário uma vez 
         bot.kb_type(hora_formatada)
         print(f'Hora formatada = {hora_formatada}')
-        sleep(0.1 + espera)
+        sleep(espera)
         # Clicando e escolhendo o Horario de entrega
         inserir_horario_entrega(bot, not_found, espera, hora_entrega)
 
@@ -201,7 +201,7 @@ def inserir_hora_suplementos(bot, espera, not_found, index, hora_entrega, primei
         if not bot.find( "No prescricao", matching=0.97, waiting_time=10000):
             not_found("No prescricao")
         bot.click_relative(14, 18)
-        sleep(0.1 + espera)
+        sleep(espera)
         inserir_horario_entrega(bot, not_found, espera, hora_entrega)
            
     
@@ -222,7 +222,7 @@ def inserir_unidade_de_interacao(bot, dados_df, index, espera, not_found):
         if not bot.find( "No. prescricao", matching=0.97, waiting_time=10000):
             not_found("No. prescricao")
         bot.click_relative(8, 17)
-        sleep(0.1 + espera)
+        sleep(espera)
         
 
     else:
@@ -236,12 +236,12 @@ def inserir_unidade_de_interacao(bot, dados_df, index, espera, not_found):
         #bot.click_relative(37, 17)
         ##if not bot.find( "Selecione o local de entrega", matching=0.97, waiting_time=10000):
         ##    not_found("Selecione o local de entrega")
-        #sleep(0.1 + espera)
+        #sleep(espera)
         #bot.click()
-        #sleep(0.1 + espera)
+        #sleep(espera)
         unidade_internacao = dados_df.loc[index, 'Unidade']
         print(unidade_internacao)
-        sleep(0.3 + espera)
+        sleep(0.1 + espera)
         bot.kb_type(unidade_internacao)
         if not bot.find( "No. prescricao", matching=0.97, waiting_time=10000):
             not_found("No. prescricao")
@@ -259,12 +259,12 @@ def inserir_crm_padrao(bot, espera, not_found):
     if not bot.find( "crm ", matching=0.97, waiting_time=10000):
         not_found("crm ")
     bot.click_relative(9, 19)
-    sleep(0.1 + espera)
+    sleep(espera)
     bot.kb_type("9574")  # Este valor é mantido como solicitado
     bot.enter()
-    sleep(0.1 + espera)
+    sleep(espera)
     bot.enter()
-    sleep(0.3 + espera)
+    sleep(0.1 + espera)
 
 # Repetição de padrões de documentação e implementação para inserir_produto e outras funções.
 
@@ -277,7 +277,7 @@ def inserir_produto(bot, dados_df, index, espera):
     :param index: Índice da linha atual no DataFrame.
     :param espera: Tempo de espera (em segundos) após ações de digitação ou clique.
     """
-    sleep(0.1 + espera)
+    sleep(espera)
     codigo_produto = str(dados_df.loc[index, 'CodProduto Sistema'])
     #codigo_produto = codigo_produto[:-2]
     print(codigo_produto)
@@ -296,7 +296,7 @@ def inserir_via_adm(bot, dados_df, index, espera):
     via_adm = dados_df.loc[index, 'Via Adm Sistema']
     bot.kb_type(via_adm)
     bot.enter()
-    sleep(0.1 + espera)
+    sleep(espera)
 
 def inserir_recipiente(bot, dados_df, index, espera):
     """
@@ -309,7 +309,7 @@ def inserir_recipiente(bot, dados_df, index, espera):
     recipiente = dados_df.loc[index, 'Embalagem']
     bot.kb_type(recipiente)
     bot.enter()
-    sleep(0.1 + espera)
+    sleep(espera)
 
 def inserir_volume(bot, dados_df, index, espera, not_found):
     """
@@ -323,7 +323,7 @@ def inserir_volume(bot, dados_df, index, espera, not_found):
     volume = str(dados_df.loc[index, 'Volume (ml)'])
     bot.kb_type(volume)
     bot.enter()
-    sleep(0.1 + espera)
+    sleep(espera)
     #sleep(espera + 0.2)        
 
 def inserir_horarios(bot, dados_df, index, not_found, espera):
@@ -336,18 +336,18 @@ def inserir_horarios(bot, dados_df, index, not_found, espera):
     :param not_found: Função a ser chamada caso o elemento não seja encontrado.
     """
     bot.kb_type("24")
-    sleep(0.1 + espera)
+    sleep(espera)
     bot.enter()
-    sleep(espera + 0.2)
+    sleep(espera + 0.1)
     bot.kb_type("0")
-    sleep(0.1 + espera)
+    sleep(espera)
     bot.enter()
-    sleep(espera + 0.2)
+    sleep(espera + 0.1)
 
     if not bot.find( "hora 0", matching=0.97, waiting_time=10000):
         not_found("hora 0")
     bot.click_relative(5, 5)
-    sleep(0.1 + espera)
+    #sleep(espera)
     
     horarios = dados_df.loc[index, 'Horários']
     horarios = padronizar_horarios(horarios)
@@ -378,25 +378,25 @@ def inserir_quantitativo_embalagens(bot, quantitativo, not_found, espera, dados_
     if not bot.find( "Quantitativo de embalagens", matching=0.97, waiting_time=10000):
         not_found("Quantitativo de embalagens")
     bot.click_relative(12, 46)
-    sleep(0.1 + espera)
+    sleep(espera)
     if not bot.find( "Escolha uma opcao", matching=0.97, waiting_time=10000):
         not_found("Escolha uma opcao")
     bot.click_relative(242, 7)
     sleep(0.1 + espera)  # Segundo clique necessário neste tipo de campo de informação
     bot.click()
-    sleep(0.1 + espera)
+    sleep(espera)
     if quantitativo:
         bot.kb_type(quantitativo)
-    sleep(0.1 + espera)
+    sleep(espera)
     bot.enter()
-    sleep(0.1 + espera)
+    sleep(espera)
     bot.enter()
-    sleep(0.1 + espera)
+    sleep(0.2 + espera)
 
 
 
 def encontrar_mensagem_cadastrar_paciente(index, espera, dados_df, bot, not_found, operacoes_logs):
-    if bot.find("paciente nao cadastrado", matching=0.97, waiting_time=500):  
+    if bot.find("paciente nao cadastrado", matching=0.97, waiting_time=250):  
         bot.enter()
         if not bot.find( "entra no cadastro paciente", matching=0.97, waiting_time=1000):
             not_found("entra no cadastro paciente")
@@ -405,17 +405,17 @@ def encontrar_mensagem_cadastrar_paciente(index, espera, dados_df, bot, not_foun
                 if not bot.find( "entra no cadastro paciente", matching=0.97, waiting_time=1000):
                     not_found("entra no cadastro paciente")
                 bot.click()
-                sleep(0.1 + espera)
+                sleep(espera)
                 cadastrar_paciente(index, espera, dados_df, bot, not_found, operacoes_logs)
-                sleep(1)
+                sleep(0.5)
                 bot.enter()
                 
         bot.click()
-        sleep(0.1 + espera)
+        sleep(espera)
         cadastrar_paciente(index, espera, dados_df, bot, not_found, operacoes_logs)
-        sleep(1)
+        sleep(0.3)
         bot.enter()
-        sleep(0.1 + espera)
+        sleep(espera)
     else: 
         return False  
 
@@ -440,12 +440,12 @@ def inserir_codigo_cliente_cadastro(bot, not_found, numero_cliente, espera):
     if not bot.find( "Codigo Cliente", matching=0.97, waiting_time=10000):
         not_found("codigo_do_cliente_cadastro")
     bot.click_relative(12, 32)
-    sleep(0.1 + espera)
+    sleep(espera)
     bot.control_a()
     bot.backspace()
     bot.kb_type(numero_cliente)
     bot.enter()
-    sleep(0.1 + espera)
+    sleep(espera)
 
 
 
@@ -468,21 +468,21 @@ def abrir_cadastro_paciente(bot, not_found, espera):
     """
     if bot.find( "arquivos", matching=0.97, waiting_time=500) or bot.find( "arquivo azul mais", matching=0.97, waiting_time=500):
         bot.click_relative(4, 6)
-        sleep(0.1 + espera)
+        sleep(espera)
     else:
         print("Não encontrou 'Arquivos', tentando outra abordagem.")
 
     # Tenta encontrar e clicar em "Cadastro"      
     if bot.find( "cadastro", matching=0.97, waiting_time=500) or bot.find( "cadastro azul", matching=0.97, waiting_time=500):
         bot.click_relative(4, 7)
-        sleep(0.1 + espera)
+        sleep(espera)
     else:
         print("Não encontrou 'Cadastro', tentando outra abordagem.")
 
     # Tenta encontrar e clicar em "Paciente" ou "Paciente Azul"
     if bot.find( "paciente", matching=0.97, waiting_time=500) or bot.find( "Paciente Azul", matching=0.97, waiting_time=500):
         bot.click()
-        sleep(0.1 + espera)
+        sleep(espera)
     else:
         not_found("Paciente/Paciente Azul")
 
@@ -504,29 +504,29 @@ def inserir_codigo_paciente_leito(bot, nome_paciente, espera, not_found):
         None
     """
     nome_paciente = nome_paciente.strip()[:-1]
-    sleep(0.1 + espera)
+    #sleep(espera)
     bot.key_f2()
-    sleep(1)
+    sleep(0.7 + espera)
     bot.kb_type(nome_paciente)
-    sleep(2)
+    sleep(1 + espera)
     if not bot.find( "Descricao", matching=0.97, waiting_time=10000):
         not_found("Descricao")
     bot.click_relative(0, 33)
-    sleep(0.1 + espera)
+    sleep(espera)
 
 
-def inserir_modulos(bot, not_found, index, dados_df, linhas_adicionais):
+def inserir_modulos(bot, not_found, index, dados_df, linhas_adicionais, espera):
     if not bot.find("coluna produto", matching=0.97, waiting_time=10000):
         not_found("coluna produto")
     bot.click()
-    sleep(0.3)
+    sleep(0.1 + espera)
     bot.click_relative(16, 28)
 
-    sleep(0.3)
+    sleep(0.1)
     if not bot.find("botao modulos", matching=0.97, waiting_time=10000):
         not_found("botao modulos")
     bot.click()
-    sleep(1)
+    sleep(0.2 + espera)
     bot.kb_type(dados_df.loc[index, 'Módulo'])
     bot.enter()
     bot.kb_type(dados_df.loc[index, 'Quantidade\n(GR ou ML)'])
@@ -550,15 +550,15 @@ def inserir_modulos(bot, not_found, index, dados_df, linhas_adicionais):
     if not bot.find("botao alterar", matching=0.97, waiting_time=10000):
         not_found("botao alterar")
     bot.click()
-    sleep(0.1)
+    sleep(espera)
     if not bot.find("botao ok", matching=0.97, waiting_time=10000):
         not_found("botao ok")
     bot.click()
-    sleep(0.1)
+    sleep(espera)
     if not bot.find("botao cancelar", matching=0.97, waiting_time=10000):
         not_found("botao cancelar")
     bot.click()
-    sleep(0.1)
+    sleep(espera)
     
 
 

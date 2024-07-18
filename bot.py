@@ -313,7 +313,7 @@ def main(pacientes_selecionados, espera, caminho_dados, caminho_comum, tipo_auto
 
                inserir_codigo_paciente(bot, dados_df, index, not_found, espera, numero_cliente)
                encontrar_mensagem_cadastrar_paciente(index, espera, dados_df, bot, not_found, operacoes_logs)
-               sleep(1)
+               sleep(0.1 + espera)
                bot.enter()
                pop_up_erro(bot, not_found, espera, hora_entrega)                       
                inserir_horario_entrega(bot, not_found, espera, hora_entrega)     

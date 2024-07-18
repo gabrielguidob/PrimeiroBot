@@ -228,7 +228,7 @@ class Application(tk.Tk):
         self.pacientes_vars = {}
         if self.dados_df is not None:
             for index, row in self.dados_df.iterrows():
-                if row['Apresen-tação'] == 'Ad ↑':
+                if 'Apresen-tação' in row and row['Apresen-tação'] == 'Ad ↑':
                     pass
                 else:
                     var = tk.BooleanVar(value=True)  # Checkboxes marcados por padrão
@@ -297,7 +297,7 @@ class Application(tk.Tk):
         label_velocidade = ttk.Label(main_frame, text="Escolha a velocidade da execução:", style="TLabel")
         label_velocidade.pack()
 
-        opcoes_velocidade = {"Rápida": "0", "Média (Rede Lenta)": "0.3", "Lenta (Rede Muito Lenta)": "0.7"}
+        opcoes_velocidade = {"Rápida": "0", "Média (Rede Lenta)": "0.1", "Lenta (Rede Muito Lenta)": "0.5"}
         self.velocidade = tk.StringVar(value="0")  # Define o padrão como rápido
         for texto, valor in opcoes_velocidade.items():
             rb = ttk.Radiobutton(main_frame, text=texto, variable=self.velocidade, value=valor, style="TRadiobutton")
