@@ -317,7 +317,7 @@ class Application(tk.Tk):
 
     def gerar_texto_final(self, numero_cliente, nome_cliente, hora_entrega, resultados_seringas_cheias, total_10ml, total_20ml):
         data_atual = datetime.now().strftime("%d/%m/%Y")
-        texto = f"HOSPITAL {nome_cliente.upper()}  |  {data_atual}  |  Entrega das {hora_entrega}\n"
+        texto = f"\n{nome_cliente.upper()}  \n{data_atual}  |  Entrega das {hora_entrega}\n"
         texto += "-" * 75 + "\n"
         if resultados_seringas_cheias:
             texto += "SERINGAS 20 ML CHEIAS\n"
