@@ -129,7 +129,7 @@ def pop_up_erro(bot, not_found, espera, hora_entrega):
                 
 def inserir_horario_entrega(bot, not_found, espera, hora_entrega):
     if not bot.find( "horario entrega", matching=0.97, waiting_time=10000):
-                    not_found("horario entrega")
+        not_found("horario entrega")
     bot.click_relative(17, 20)
     #bot.click()
     sleep(0.1 + espera)
@@ -260,11 +260,17 @@ def inserir_crm_padrao(bot, espera, not_found):
         not_found("crm ")
     bot.click_relative(9, 19)
     sleep(espera)
+    bot.control_a()
     bot.kb_type("9574")  # Este valor é mantido como solicitado
     bot.enter()
     sleep(espera)
-    bot.enter()
+    if not bot.find("Aconra para OK", matching=0.97, waiting_time=10000):
+        not_found("Aconra para OK")
+    bot.click_relative(212, 53)
     sleep(0.1 + espera)
+    if not bot.find("Produto pos Crm", matching=0.97, waiting_time=5000):
+        not_found("Produto pos Crm")
+    
 
 # Repetição de padrões de documentação e implementação para inserir_produto e outras funções.
 
@@ -390,7 +396,9 @@ def inserir_quantitativo_embalagens(bot, quantitativo, not_found, espera, dados_
     sleep(espera)
     bot.enter()
     sleep(espera)
-    bot.enter()
+    if not bot.find("Aconra para OK", matching=0.97, waiting_time=10000):
+        not_found("Aconra para OK")
+    bot.click_relative(212, 53)
     sleep(0.2 + espera)
 
 

@@ -18,6 +18,7 @@ from inserir import (
 import unicodedata
 from prescricao_modulos import prescricao_modulos_suplementos
 from preparar_modulos import preparar_dados_modulos
+from utils import chamar_mostrar_primeira_tela  # Importar a função para chamar mostrar_primeira_tela
 
 
 
@@ -48,7 +49,9 @@ def not_found(label):
     
     :param label: Rótulo do elemento que não foi encontrado.
     """
+    messagebox.showerror("Erro Automação",f"Elemento não encontrado: {label}")
     print(f"Elemento não encontrado: {label}")
+    chamar_mostrar_primeira_tela()  # Chama a função que chama mostrar_primeira_tela
 
 def preparar_cabecalho_cliente(caminho_dados):
     """
