@@ -49,7 +49,7 @@ def not_found(label):
     
     :param label: Rótulo do elemento que não foi encontrado.
     """
-    messagebox.showerror("Erro Automação",f"Elemento não encontrado: {label}")
+    messagebox.showerror("Erro Automação",f"Campo não encontrado: {label}")
     print(f"Elemento não encontrado: {label}")
     chamar_mostrar_primeira_tela()  # Chama a função que chama mostrar_primeira_tela
 

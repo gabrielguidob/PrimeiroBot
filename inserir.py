@@ -327,6 +327,7 @@ def inserir_volume(bot, dados_df, index, espera, not_found):
     """
     
     volume = str(dados_df.loc[index, 'Volume (ml)'])
+    bot.control_a()
     bot.kb_type(volume)
     bot.enter()
     sleep(espera)
@@ -341,10 +342,12 @@ def inserir_horarios(bot, dados_df, index, not_found, espera):
     :param index: Índice da linha atual no DataFrame.
     :param not_found: Função a ser chamada caso o elemento não seja encontrado.
     """
+    bot.control_a()
     bot.kb_type("24")
     sleep(espera)
     bot.enter()
     sleep(espera + 0.1)
+    bot.control_a()
     bot.kb_type("0")
     sleep(espera)
     bot.enter()
